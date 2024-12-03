@@ -13,7 +13,6 @@
         <li><a href="#project-description">專案說明</a></li>
         <li><a href="#responsible-for-project">我負責的項目</a></li>
         <li><a href="#technology-application">技術應用</a></li>
-        <li><a href="#database-design">資料庫設計</a></li>
         <li><a href="#function-description">功能說明</a></li>
     </ul>
     <h2 id="project-description">專案說明 : </h2>
@@ -59,7 +58,6 @@
             <li>Animate.css</li>
         </ul>
     </ul>
-    <h2 id="database-design">資料庫設計 : </h2>
    <h2 id="function-description">功能說明 :</h2>
     <ul>
         <li>

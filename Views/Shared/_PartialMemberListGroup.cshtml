@@ -1,0 +1,25 @@
+﻿@{
+    bool isLogin = ViewContext.HttpContext.Session.GetString("checkGoogleLogin") == "true";
+}
+<div class="border memberWrapper mb-3 w-100">
+    <ul class="list-group list-group-flush memberList">
+        <a href="@Url.Action("Notify", "Member")" class="list-group-item list-group-item-action border-0 text-center py-3 @(ViewContext.RouteData.Values["action"]?.ToString() == "Notify" || ViewContext.RouteData.Values["action"] == null ? "active" : "")">
+            <i class="bi bi-bell-fill me-2"></i>會員通知
+        </a>
+        @if (!isLogin)
+        {
+            <a href="@Url.Action("EditPassword", "Member")" class="list-group-item list-group-item-action border-0 text-center py-3 @(ViewContext.RouteData.Values["action"]?.ToString() == "EditPassword" ? "active" : "")">
+                <i class="bi bi-key-fill me-2"></i>變更密碼
+            </a>
+        }
+        <a href="@Url.Action("EditInfo", "Member")" class="list-group-item list-group-item-action border-0 text-center py-3 @(ViewContext.RouteData.Values["action"]?.ToString() == "EditInfo" ? "active" : "")">
+            <i class="bi bi-people-fill me-2"></i>修改會員資料
+        </a>
+        <a href="@Url.Action("AddRoom", "Member")" class="list-group-item list-group-item-action border-0 text-center py-3 @(ViewContext.RouteData.Values["action"]?.ToString() == "AddRoom"  ? "active" : "") || @(ViewContext.RouteData.Values["action"]?.ToString() == "DeleteRoom"  ? "active" : "")">
+            <i class="bi bi-house-add me-2"></i>刊登/刪除房間
+        </a>
+        <a href="@Url.Action("EditRoom", "Member")" class="list-group-item list-group-item-action border-0 text-center py-3 @(ViewContext.RouteData.Values["action"]?.ToString() == "EditRoom" ? "active" : "")">
+            <i class="bi bi-house-gear me-2"></i>修改已刊登房間
+        </a>
+    </ul>
+</div>

@@ -1,0 +1,56 @@
+﻿/* 圖片區塊的樣式 */
+.article-image img {
+    width: 100%; /* 填滿 */
+    border-radius: 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+/* 文章標題的樣式 */
+.title {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+/* 文章日期的樣式 */
+.article-date {
+    font-size: 1rem; /* 字體比例 */
+    line-height: 1.5; /* 行高 */
+    color: #888;
+    text-align: start;
+}
+
+/* 內文的樣式 */
+.article-text {
+    font-size: 1.1rem; /* 字體大小 */
+    line-height: 2; /* 行高 */
+    color: var(--primary);
+    text-align: justify; /* 兩端對齊 */
+}
+
+/* 按鈕樣式 */
+.container .btn {
+    color: #dec875;
+    transition: transform 0.2s ease; /* 過渡效果 */
+}
+
+    /* 懸停效果 */
+    .container .btn:hover {
+        transform: scale(1.05); /* 鼠標懸停時放大 5% */
+    }
+
+/* 響應式設計：讓內容在手機上也能顯示良好 */
+@media (max-width: 760px) {
+    .container {
+        padding: 15px; /* 手機內邊距 */
+    }
+
+    .title {
+        font-size: 1.5rem; /* 標題大小 */
+    }
+
+    .article-text {
+        font-size: 1rem; /* 內文字體大小 */
+    }
+}

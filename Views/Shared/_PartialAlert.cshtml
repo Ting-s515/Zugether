@@ -1,0 +1,33 @@
+﻿@model PartialAlert
+@{
+    var color = Model.Color;
+    var alertTxt = Model.AlertText;
+    var show = Model.Show;
+    var time = Model.Time;
+}
+
+
+
+<div class="alertWrapper @(show ? "d-flex" : "d-none")">
+    <div class="alert alert-@color position-absolute text-center py-4 text-@color" role="alert">
+        <div class="d-flex flex-column">
+            @if (color == "success")
+            {
+                <i class="bi bi-check-circle alert-icon animate__animated animate__flip"></i>
+                <strong class="animate__animated animate__pulse">@alertTxt</strong>
+            }
+            else if (color == "danger")
+            {
+                <i class="bi bi-x-circle alert-icon animate__animated animate__shakeX"></i>
+                <strong class="animate__animated animate__flash">@alertTxt</strong>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    setTimeout(() => {
+        $(".alertWrapper").removeClass("d-flex");
+        $(".alertWrapper").addClass('d-none');
+    }, @time);
+</script>

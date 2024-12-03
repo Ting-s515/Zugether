@@ -1,0 +1,49 @@
+﻿.approved-card {
+    background-color: #fff3ee;
+}
+
+/* 按鈕基本樣式 */
+#agreeBtn, #cencelBtn {
+    white-space: nowrap;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    padding: 10px 15px;
+    transition: all 0.3s ease; /* 平滑過渡效果 */
+}
+
+    /* 同意按鈕展開樣式 */
+    #agreeBtn.expanded {
+        width: auto;
+        padding: 10px 30px;
+    }
+
+/* 取消同意按鈕展開樣式 */
+#disAgreeBtn.expanded {
+    width: auto;
+    padding: 10px 30px;
+}
+
+/*目前無通知*/
+.no-notification {
+    text-align: center;
+    color: #999;
+    margin-top: 20px;
+}
+
+
+.hide {
+    display: none;
+}
+
+
+.border-danger {
+    height: 150px;
+    background-color: rgb(241, 174, 181);
+}
+
+.border-success {
+    height: 150px;
+    background-color: rgb(163, 207, 187);
+}

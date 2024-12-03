@@ -1,0 +1,108 @@
+﻿@using Zugether.DTO
+@using System.Linq
+@using Newtonsoft.Json
+@model IEnumerable<RoomViewModel>
+
+
+<partial name="~/Views/Shared/_PartialRoomCard.cshtml" />
+
+<script>
+	window.onload = function () {
+		const [navigation] = performance.getEntriesByType("navigation");
+		if (navigation.type === "back_forward" && !sessionStorage.getItem('redirected')) {
+			console.log("載入方式", navigation.type);
+			window.location.href = '/Search/RoomList';
+			// 設置 sessionStorage 標記，避免無限循環
+			sessionStorage.setItem('redirected', 'true');
+		}
+	};
+	//離開頁面就清除
+	window.onunload = function () {
+		sessionStorage.removeItem('redirected');
+	};
+	$(function () {
+		var isLogin = @JsonConvert.SerializeObject(ViewContext.HttpContext.Session.GetString("isLogin") == "true");
+		var memberID, memberName, memberEmail;
+		if (isLogin) {
+			memberID = sessionStorage.getItem("memberID");
+			memberName = sessionStorage.getItem("memberName");
+			memberEmail = sessionStorage.getItem("memberEmail");
+		}
+		console.log("會員 ID:", memberID);
+		console.log("會員名稱:", memberName);
+		console.log("會員 Email:", memberEmail);
+		$('.card-element').on('change', '.heart-checkbox', function (e) {
+			e.stopPropagation();
+			const placeName = $(this).closest('.row-md-1').find('.card-title').text().trim();
+			if (!isLogin) {
+				e.stopPropagation();
+				$('#alert-container').load('/Search/Alert', {
+					Color: 'danger',
+					AlertText: '請登入會員!!',
+					Show: true,
+					Time: 1000
+				});
+				setTimeout(() => {
+					$(this).prop('checked', false);
+				}, 10);
+			}
+			else {
+				e.stopPropagation();
+				const roomCard = $(this).closest('.card');
+				const roomID = roomCard.data('room-id');
+				const cardTitle = roomCard.find('.card-title').text().trim();
+				if (this.checked) {
+					e.stopPropagation();
+					console.log("roomID= ", roomID);
+					$.ajax({
+						url: '@Url.Action("FavoriteRoom", "Member")',
+						type: "POST",
+						data: { roomID: roomID, memberID: memberID },
+						success: function (response) {
+							console.log(response.message, response.state);
+							$('#alert-container').load('/Search/Alert', {
+								Color: 'success',
+								AlertText: `收藏成功!!`,
+								Show: true,
+								Time: 1000
+							});
+						},
+						//匿名
+						error: function (xhr, status, error) {
+							ajaxError(xhr, status, error);
+							$('#alert-container').load('/Search/Alert', {
+								Color: 'danger',
+								AlertText: `收藏失敗!!`,
+								Show: true,
+								Time: 1000
+							});
+						}
+					});
+				}
+				else {
+					e.stopPropagation();
+					console.log("取消收藏", roomID, cardTitle);
+					$.ajax({
+						url: '@Url.Action("RemoveFavoriteRoom", "Member")',
+						type: "POST",
+						data: { roomID: roomID, memberID: memberID },
+						success: function (response) {
+							console.log(response.message, response.state);
+							$('#alert-container').load('/Search/Alert', {
+								Color: 'success',
+								AlertText: `已移除收藏!!`,
+								Show: true,
+								Time: 1000
+							});
+						},
+						error: ajaxError
+					});
+				}
+			}
+		});
+
+		//$(function())結束
+	});
+</script>
+
+

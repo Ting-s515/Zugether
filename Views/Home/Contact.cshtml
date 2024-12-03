@@ -1,0 +1,125 @@
+﻿@{
+    bool show = ViewBag.show ?? false;
+    string color = ViewBag.color ?? "success"; // 預設顏色
+    string message = ViewBag.message ?? ""; // 預設訊息
+}
+
+@if (ViewBag.show)
+{
+    @await Html.PartialAsync("_PartialAlert", new PartialAlert
+{
+    Color = color,
+    AlertText = message,
+    Show = show,
+    Time = 2000
+})
+}
+
+<section class="contact py-5">
+    <div class="container d-flex flex-column align-items-center">
+        <div class="w-100 mb-3">
+            @await Html.PartialAsync("_PartialPageTitle", "聯絡我們")
+        </div>
+        <form action="Contact" method="post" class="w-75">
+            <div class="mb-3">
+                <label for="name" class="form-label">姓名(必填)<span class="text-danger ms-2">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" />
+                <div class="text-danger d-none" id="nameError">請輸入姓名。</div>
+            </div>
+            <div class="mb-3">
+                <label for="title" class="form-label">主旨(必填)<span class="text-danger ms-2">*</span></label>
+                <input type="text" class="form-control" id="title" name="title" />
+                <div class="text-danger d-none" id="titleError">請輸入主旨。</div>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email(必填)<span class="text-danger ms-2">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" />
+                <div class="text-danger d-none" id="emailError">請輸入Email。</div>
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">手機(必填)<span class="text-danger ms-2">*</span></label>
+                <input type="tel" class="form-control" id="phone" name="phone" />
+                <div class="text-danger d-none" id="phoneError">請輸入手機號碼。</div>
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">想說的話(必填)<span class="text-danger ms-2">*</span></label>
+                <textarea class="form-control CustomizedScroll mb-1" id="message" name="message" rows="5" cols="50" maxlength="200" placeholder="請輸入內容，最多 200 字"></textarea>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-danger d-none" id="messageError">請輸入想說的話。</div>
+                    <p class=' text-muted textNum ms-auto'>0/200</p>
+                </div>
+                
+                
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-3">送出</button>
+        </form>
+    </div>
+</section>
+
+<script>
+     $(document).ready(function () {
+        var show = "@show";
+        var color = "@color";
+        if (show == "True" && color == "success") {
+            setTimeout(function () {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }, 3000);
+        }
+        // 表單提交事件
+       $("form").on("submit", function (e) {
+            let isValid = true;
+
+            // 重置所有錯誤訊息
+            $(".text-danger").addClass("d-none");
+
+            // 驗證姓名
+            const name = $("#name").val().trim();
+            if (!name) {
+                $("#nameError").removeClass("d-none");
+                isValid = false;
+            }
+
+            // 驗證主旨
+            const title = $("#title").val().trim();
+            if (!title) {
+                $("#titleError").removeClass("d-none");
+                isValid = false;
+            }
+
+            // 驗證 Email
+            const email = $("#email").val().trim();
+            const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+           if (!email) {
+               $("#emailError").removeClass("d-none");
+               isValid = false;
+            } 
+
+            // 驗證手機
+            const phone = $("#phone").val().trim();
+            if (!phone) {
+                $("#phoneError").removeClass("d-none");
+                isValid = false;
+            }
+
+            // 驗證想說的話
+            const message = $("#message").val().trim();
+            if (!message) {
+                $("#messageError").removeClass("d-none");
+                isValid = false;
+            }
+
+            // 如果驗證失敗，阻止表單提交
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+
+        // 字數計算
+        $("#message").on("input", function () {
+            const length = $(this).val().length;
+            $(".textNum").text(`${length}/200`);
+        });
+    });
+
+</script>

@@ -1,0 +1,44 @@
+﻿@model RoomViewModel
+<!-- 會員個人資料彈出視窗 strat-->
+
+<div class="modal fade" id="MemberModal" data-bs-backdrop="static" tabindex="-1"
+     aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex flex-column align-items-center p-3">
+                    <div class="avatar" style="width: 200px; height: 200px;">
+                        @{
+                            if (Model.Member?.avatar != null)
+                            {
+                                string imageBase64 = Convert.ToBase64String(Model.Member.avatar);
+                                string imageSrc = $"data:image/jpeg;base64,{imageBase64}";
+                                <img src="@imageSrc" alt="" class="rounded-circle object-cover w-100 h-100">
+                            }
+                            else
+                            {
+                                <img src="~/images/peopleImg.png" alt="" class="rounded-circle object-cover w-100 h-100">
+                            }
+                        }
+
+                    </div>
+                    <h1>@Model.Member?.name</h1>
+                    <div class="d-flex flex-column align-items-start w-100">
+                        <p>暱稱 : @Model.Member?.nickname</p>
+                        @* date資料型態不接受null 所以不要加「?」 *@
+                        <p>出生日期 : @(Model.Member.birthday.HasValue ? Model.Member.birthday.Value.ToString("yyyy-MM-dd") : "N/A")</p> <!-- 格式化日期 -->
+                        <p>性別 : @Model.Member?.gender</p>
+                        <p>身分 : @Model.Member?.job</p>
+                        <p>電話 : @Model.Member?.phone</p>
+                        <p>上課/工作作息時間 : @Model.Member?.jobtime</p>
+                        <p class="text-break">自我介紹 : @Model.Member?.introduce</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

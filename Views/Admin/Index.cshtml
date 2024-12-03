@@ -1,0 +1,54 @@
+﻿@{
+    Layout = null;
+}
+<!-- bootstrap -->
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link rel="stylesheet" href="~/css/cssReset.css" asp-append-version="true" />
+<!-- site -->
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<!-- all isolation css -->
+<link rel="stylesheet" href="~/Zugether.styles.css" asp-append-version="true" />
+<!-- jQuery -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<!-- bootstrap js-->
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+@{
+    // bool show = ViewBag.show ?? false;
+    bool show = true;
+	string color = ViewBag.color ?? "success"; // 預設顏色
+	string message = ViewBag.message ?? ""; // 預設訊息
+}
+
+@if (ViewBag.show)
+{
+	@await Html.PartialAsync("_PartialAlert", new PartialAlert
+{
+	Color = color,
+	AlertText = message,
+	Show = show,
+	Time = 2000
+})
+}
+<div class="container py-5">
+    <div class="row justufy-content-center">
+        <div class="col">
+            <h2 class="mb-5">Zugether 後台登入</h2>
+            <form action="Index" method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">使用者</label>
+                    <input type="text" class="form-control" id="username" name="username" value="">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">密碼</label>
+                    <input type="password" class="form-control" id="password" name="password" value="">
+                </div>
+                <div class="text-center ">
+                    <button type="submit" class="btn btn-primary px-5 py-3">登入</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+</div>

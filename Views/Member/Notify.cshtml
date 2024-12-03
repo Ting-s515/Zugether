@@ -1,0 +1,461 @@
+﻿@using Zugether.DTO
+@* 導入資料 *@
+@model NotifyViewModel
+
+@* ------ *@
+<section class="memberLayout container py-5">
+	<div class="d-flex flex-column flex-md-row">
+		<!-- 左測欄位 -->
+		@await Html.PartialAsync("_PartialMemberListGroup")
+		<!-- 會員通知 -->
+		<div class="w-100  ps-md-5 " id="loadMemberModalDiv">
+
+
+			<!-- 刊登狀態 -->
+			@if (Model.RoomIsEnabled == false && Model.RoomIsCompleted == false)
+			{
+				<div id="roomState" class="shadow p-3 mb-5  rounded">
+					<div class="w-100 mb-3">
+						@await Html.PartialAsync("_PartialPageTitle", "刊登狀態")
+					</div>
+					<div class="card border-danger mb-3" id="waitForAgree">
+						<div id="roomPublish" class="card-body d-flex align-items-center justify-content-center text-center">
+							<h4><i class="  text-danger">房間上架狀態<br /> 【<i class="bi bi-house-up"></i> 待審核】</i></h4>
+						</div>
+					</div>
+				</div>
+			}
+			else if (Model.RoomIsEnabled == true && Model.RoomIsCompleted == false)
+			{
+				<div id="roomState" class="shadow p-3 mb-5  rounded">
+					<div class="w-100 mb-3">
+						@await Html.PartialAsync("_PartialPageTitle", "刊登狀態")
+					</div>
+					<div class="card border-success mb-3" id="successPublish">
+						<div id="roomPublish" class="card-body d-flex align-items-center justify-content-center text-center">
+							<h4><i class="text-success">房間審核成功<br /> 【<i class="bi bi-house-check"></i> 已上架】</i></h4>
+						</div>
+					</div>
+				</div>
+			}
+			else if (Model.RoomIsEnabled == false && Model.RoomIsCompleted == true)
+			{
+				<div id="roomState" class="shadow p-3 mb-5  rounded">
+					<div class="w-100 mb-3">
+						@await Html.PartialAsync("_PartialPageTitle", "刊登狀態")
+					</div>
+					<div class="card border-danger mb-3" id="successMatch">
+						<div id="roomPublish" class="card-body d-flex align-items-center justify-content-center text-center">
+							<h4><i class=" text-danger">合租配對完成<br /> 【<i class="bi bi-house-down"></i> 已下架】</i></h4>
+						</div>
+					</div>
+				</div>
+			}
+
+			<hr />
+			@if (Model.RoomInfo != null && Model.RoomInfo.RoomExists)
+			{
+				<!-- 邀約通知 -->
+
+				<div class="w-100 mb-3">
+					@await Html.PartialAsync("_PartialPageTitle", "邀約通知")
+				</div>
+
+				<div class="card mb-2">
+					<div class="card-body py-1">
+						<p>需求人數：@Model.RoomInfo.RoommateNum</p>
+						<div id="agreedCountNotify">
+							<p>同意人數：0</p>
+						</div>
+					</div>
+				</div>
+
+				@if (Model.RoomInfo.RoommateNum > 0)
+				{
+					@* <p>該房間尚缺室友。</p> *@
+				}
+				else
+				{
+					@* <p>該房間目前不缺室友。</p> *@
+				}
+				//導入「有房間」的會員頁面通知
+				@await Html.PartialAsync("_PartiaNotify_InviteeMemberList", Model)
+
+				@section Scripts {
+				<script>
+
+					// 更新通知狀態並更新UI
+					function updateNotificationStatusUI(response, card, agreeButton, cancelButton) {
+						// 更新已同意室友數量
+						$("#agreedCount").text(response.agreedCount);
+
+						// 禁用或啟用同意按鈕
+						$(".agreeBtn").prop("disabled", response.agreedCount >= @Model.RoomInfo.RoommateNum);
+
+						// 顯示或隱藏「確認合租」按鈕
+						$('#confirmButton').toggle(response.agreedCount >= @Model.RoomInfo.RoommateNum);
+					}
+
+					// 刊登房源者_按鈕功能------------------------------------------------
+
+
+					function updateNotificationStatus(notificationId, status) {
+						$.ajax({
+							url: '/Member/UpdateNotificationStatus',
+							// url: '@Url.Action("UpdateNotificationStatus", "Member")',
+							type: 'POST',
+							data: { notificationId: notificationId, status: status },
+							success: function (response) {
+
+								// 更新已同意室友數量
+								$("#agreedCount").text(response.agreedCount);
+
+
+
+								//禁用「同意」按鈕
+								if (response.canAgreeBtn === false) {
+									// 這裡禁用所有同意按鈕
+									$(".agreeBtn").prop("disabled", true);
+								} else if (response.canAgreeBtn === true) {
+									$(".agreeBtn").prop("disabled", false);
+								}
+
+								// 更新通知文字，顯示「對方已撤回邀請」或其他文字
+								card.find('.notification-text').text(response.notificationText);
+
+								// 更新已同意室友數量
+								$("#agreedCount").text(response.agreedCount);
+								console.log(response);
+							}
+						});
+					}
+
+
+					// 更新後端通知狀態
+					function updateNotificationStatus(notificationId, status) {
+						return $.ajax({
+							url: '/Member/UpdateNotificationStatus',
+							type: 'POST',
+							data: { notificationId: notificationId, status: status }
+						});
+					}
+
+
+					// 點擊同意按鈕，更新後端並更新UI
+					$('#loadMemberModalDiv').on('click', '#agreeBtn', function () {
+						let agreeButton = $(this);
+						let notificationId = agreeButton.data('notification-id');
+						let card = agreeButton.closest('.card'); // 找到最接近的卡片
+
+						$.post('/Member/UpdateNotificationStatus', { notificationId, status: "已同意" })
+							.done(function (response) {
+								$('#alert-container').load('/Search/Alert', {
+									Color: 'success',
+									AlertText: '邀約已同意',
+									Show: true,
+									Time: 1000
+								});
+								console.log("Response:", response); // 檢查是否收到回應
+								card.prependTo('#forAgree');
+								updateNotificationStatusUI(response);
+								agreeButton.prop('disabled', true); // 禁用同意按鈕
+								let cancelButton = card.find('#disAgreeBtn'); // 確保這裡找到刪除按鈕
+								cancelButton.text('刪除'); // 更新刪除按鈕的文字
+								cancelButton.attr('id', 'deleteBtn');
+								// 找到 .notifyText 並替換文本
+								let notifyText = card.find('.notifyText');
+								// 更新文本
+								notifyText.text('您已同意該邀約');
+								agreedCountNotify();
+							})
+							.fail(function (error) {
+								console.error('伺服器回應失敗:', error.responseText);
+								alert('處理失敗，請稍後再試');
+							})
+
+					});
+
+
+					// 點擊同意合租按鈕
+					// 動態綁定確認合租按鈕的點擊事件
+					$(document).on('click', '#confirmButton', function () {
+						// 按鈕本身
+						let confirmButton = $(this);
+						console.log("已點擊確認合租按鈕");
+						confirmButton.prop('disabled', true); // 禁用按鈕，防止重複點擊
+
+						// 發送 AJAX 請求
+						$.post('/Member/ConfirmFinalizeInvitations')
+							.done(function (response) {
+								if (response.success) {
+									console.log('伺服器回應成功:', response);
+									// alert(response.message);
+									$('#alert-container').load('/Member/Alert', {
+										Color: 'success',
+										AlertText: response.message,
+										Show: true,
+										Time: 1000
+									});
+									// 使用 setTimeout 延遲重新整理
+									setTimeout(function () {
+										location.reload(); // 等待提示框完成後重新整理頁面
+									}, 1200); // 延遲 1.2 秒（1200 毫秒）
+								} else {
+									console.error('伺服器回應失敗:', response.message);
+									alert(response.message);
+								}
+							})
+							.fail(function (error) {
+								console.error('伺服器回應失敗:', error.responseText);
+								alert('處理失敗，請稍後再試');
+							})
+							.always(function () {
+								// confirmButton.prop('disabled', false); // 總是恢復按鈕狀態★
+							});
+					});
+				</script>
+				@* <script src="~/js/NotifyInvitee.js"></script> *@
+				}
+			}
+			else
+			{
+				<div class="w-100 mb-3">
+					@await Html.PartialAsync("_PartialPageTitle", "邀約列表")
+				</div>
+				@* <p>此會員尚未刊登房間。</p> *@
+
+				//導入「沒有房間」的會員頁面通知
+				@await Html.PartialAsync("_PartiaNotify_OnlyInviterMemberList", Model)
+			}
+
+			@* 查看是否成功導入用區塊------- *@
+			@* 	<h4>會員通知列表</h4>
+
+			<div id="notificationList">
+			<p>正在加載通知...</p>
+			</div>
+			*@
+			@* ------ *@
+
+		</div>
+	</div>
+	@*動畫效果*@
+	<div id="alert-container"></div>
+</section>
+}
+
+
+
+<script>
+	$(document).ready(function () {
+		// 初始化頁面元素或事件監聽
+		fetchNotifications(); // 第一次抓取通知
+	});
+
+
+	function agreedCountNotify() {
+		$.get('/Member/GetMemberNotifications')
+			.done(function (response) {
+				// 從伺服器回傳資料中解構 notifications 和 agreedCount
+				const { notifications, agreedCount } = response;
+
+				// 更新通知區塊
+				let notifyNum = $('#agreedCountNotify');
+				notifyNum.empty(); // 清空現有列表
+
+				// 顯示目前同意人數
+				notifyNum.append(`<p>同意人數：${agreedCount}</p>`);
+
+				// 顯示或隱藏「確認合租」按鈕
+				if (response.showConfirmButton && !response.allAgreedFinalized) {
+					// 顯示按鈕
+					document.getElementById('confirmButton').style.display = 'inline-block';
+					// $('#confirmButton').removeClass('d-none');
+				}
+				else if (response.showConfirmButton && response.allAgreedFinalized) {
+					// 隱藏按鈕
+					document.getElementById('confirmButton').style.display = 'none';
+				}
+				else {
+					// 隱藏按鈕
+					document.getElementById('confirmButton').style.display = 'none';
+					// $('#confirmButton').addClass('d-none');
+				}
+			})
+			.fail(function (error) {
+				console.error('無法獲取通知:', error.responseText);
+			});
+	}
+	// // 每10秒更新一次通知
+	setInterval(fetchNotifications, 10000);
+	// 頁面載入時立即執行一次
+	$(document).ready(agreedCountNotify);
+
+
+	function fetchNotifications() {
+		$.get('/Member/GetMemberNotifications')
+			.done(function (response) {
+				// 從伺服器回傳資料中解構 notifications 和 agreedCount
+				const { notifications, agreedCount } = response;
+
+				// 更新通知區塊
+				let notificationList = $('#notificationList');
+				notificationList.empty(); // 清空現有列表
+
+				// 顯示目前同意人數
+				notificationList.append(`<p>現在同意人數：${agreedCount}</p>`);
+
+				// 如果有通知，則生成通知列表
+				if (notifications.length > 0) {
+					notifications.forEach(notification => {
+						let notificationHtml = `
+															<div class="notification">
+																<p>邀請人ID：${notification.inviter_member_id}</p>
+																<p>被邀請人ID：${notification.invitee_member_id}</p>
+																<p>狀態：${notification.notify_status}</p>
+																<p>是否完成：${notification.is_finalized}</p>
+															</div>
+														`;
+						notificationList.append(notificationHtml);
+					});
+				} else {
+					notificationList.append('<p>無相關通知</p>');
+				}
+			})
+			.fail(function (error) {
+				console.error('無法獲取通知:', error.responseText);
+			});
+	}
+	// // 每10秒更新一次通知
+	setInterval(fetchNotifications, 10000);
+	// 頁面載入時立即執行一次
+	$(document).ready(fetchNotifications);
+
+
+
+	$(function () {
+		//11/13修改 整理JS 把css的部分移出至隔離css樣式
+		//-把boostrap的點擊觸發改成 含Ajax的回傳值
+		//-載入會員資訊
+		function loadMemberModal(memberName) {
+			$.ajax({
+				url: '/Member/GetMemberModal',
+				type: 'POST',
+				data: { memberName: memberName },
+				success: function (result) {
+					$('#modal-container').html(result);
+					$('#MemberModal').modal('show');
+				},
+				error: function (xhr) {
+					console.log("Error loading member info:", xhr.responseText);
+					alert('載入成員資訊時發生錯誤');
+				}
+			});
+		}
+
+		// 檢查是否有通知及卷軸是否出現的判斷
+		// 判斷是否有孫子元素，若無則增加顯示文字並移除存放.card的區域
+		// 若無通知，加入「無會員通知」，且remove ('.CustomizedScroll')(此移除不會影響之前的新增)
+		// 檢查是否有通知，如果沒有，顯示「無會員通知」
+		function checkForNotifications() {
+			if ($('.CustomizedScroll .card').length === 0) {
+				$('.CustomizedScroll').before('<h3 class="no-notification">尚無會員通知</h3>').remove();
+			}
+		}
+		// 頁面載入時立即執行一次
+		$(document).ready(checkForNotifications);
+
+		// 共有_刪除之按鈕功能------------------------------------------------
+		$('#loadMemberModalDiv').on('click', '#deleteBtn', function () {
+
+			const notificationId = $(this).data('notification-id'); // 找該ID
+			const card = $(this).closest('.card');
+
+			$.ajax({
+				url: '/Member/DeleteNotification',
+				type: 'POST',
+				data: { notificationId: notificationId },
+				success: function (response) {
+					if (response.success) {
+						// 成功刪除後從界面移除對應的通知
+						card.detach();
+						checkForNotifications(); // 檢查剩餘的通知
+					} else {
+						alert('刪除失敗：' + response.message);
+					}
+				},
+				error: function () {
+					alert('刪除通知時發生錯誤，請稍後再試。');
+				}
+			});
+		});
+
+
+		// 刊登房源者_按鈕功能------------------------------------------------
+
+		// 點擊暱稱查看邀約者資訊 inviter
+		$('#loadMemberModalDiv').on('click', '#loadMemberModal.inviter', function () {
+			loadMemberModal($(this).text().trim());//.trim()確保資料前後沒有空白
+		});
+
+		// 點擊取消按鈕
+		$('#loadMemberModalDiv').on('click', '#disAgreeBtn', function () {
+			let cancelButton = $(this);
+			cancelButton.prop('disabled', true); // 禁用按鈕，防止重複點擊
+
+			let card = cancelButton.closest('.card');
+			card.detach();
+			checkForNotifications();
+
+			let notificationId = cancelButton.data('notification-id');
+			$.post('/Member/UpdateNotificationStatus', { notificationId, status: "已取消" })
+				.done(function (response) {
+					console.log('伺服器回應成功:', response);
+					cancelButton.closest('.card').remove(); // 移除該通知卡片
+				})
+				.fail(function (error) {
+					console.error('伺服器回應失敗:', error.responseText);
+					alert('處理失敗，請稍後再試');
+				})
+				.always(function () {
+					cancelButton.prop('disabled', false); // 請求完成後恢復按鈕
+				});
+		});
+
+
+
+		// 發出邀約者_按鈕功能------------------------------------------------
+
+		// 點擊暱稱查看受邀者資訊 invitee
+		$('#loadMemberModalDiv').on('click', '#loadMemberModal.invitee', function () {
+			loadMemberModal($(this).text().trim());//.trim()確保資料前後沒有空白
+		});
+
+		// 點擊撤回按鈕
+		$('#loadMemberModalDiv').on('click', '#withdrawBtn', function () {
+			let withdrawButton = $(this);
+			withdrawButton.prop('disabled', true); // 禁用按鈕，防止重複點擊
+
+			let card = withdrawButton.closest('.card');
+			card.detach();
+			checkForNotifications();
+
+			let notificationId = withdrawButton.data('notification-id');
+			$.post('/Member/UpdateNotificationStatus', { notificationId, status: "已撤回" })
+				.done(function (response) {
+					console.log('通知取消成功:', response);
+					withdrawButton.closest('.card').remove(); // 移除該通知卡片
+				})
+				.fail(function (error) {
+					console.error('取消邀請失敗:', error.responseText);
+					alert('處理失敗，請稍後再試');
+				})
+				.always(function () {
+					withdrawButton.prop('disabled', false); // 恢復按鈕
+				});
+		});
+		// 刊登房源者_按鈕功能------------------------------------------------
+	});
+
+
+</script>

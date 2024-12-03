@@ -1,0 +1,246 @@
+﻿@using Zugether.DTO
+@* 導入資料 *@
+@model NotifyViewModel
+<!-- 會員通知 -->
+@{
+	// 分類通知資料
+	var acceptedNotifications = Model.InviteNotification
+		.Where(n => n.notify_status == "已同意")
+		.ToList();
+
+	var cancelledNotifications = Model.InviteNotification
+		.Where(n => n.notify_status == "已取消")
+		.ToList();
+
+	var pendingNotifications = Model.InviteNotification
+		.Where(n => n.notify_status == "待處理")
+		.ToList();
+
+	var withdrawnNotifications = Model.InviteNotification
+		.Where(n => n.notify_status == "已撤回")
+		.ToList();
+
+	// 計算已同意的室友數量
+	var agreeCount = acceptedNotifications.Count();
+	var requiredRoommates = Model.RoomInfo.RoommateNum;  // 假設從模型中取得所需室友數量
+}
+
+<div class="w-100" id="forAgree">
+@* ----------已同意----------- *@
+@foreach (var notification in acceptedNotifications)  @* <!-- 遍歷 List<Member> --> *@
+{
+	//判斷是否存在發出邀請的會員
+	Member? inviter = Model.InviterMembers.ContainsKey(notification.inviter_member_id)
+	? Model.InviterMembers[notification.inviter_member_id]
+	: null;
+
+	<div>
+		<div class="card mb-3">
+			<div class="row align-items-center">
+				<div class="col-3 col-md-2 ">
+					<div class="card-body">
+						@{
+							if (inviter?.avatar != null)
+							{
+								string imageBase64 = Convert.ToBase64String(inviter?.avatar);
+								string imageSrc = $"data:image/jpeg;base64,{imageBase64}";
+								<img src="@imageSrc" alt="" style="width: 4rem !important; height:4rem  !important;object-fit: cover; border-radius: 50%;" class="w-100 h-100">
+							}
+							else
+							{
+									<img src="~/images/peopleImg.png" style="width: 4rem !important; height:4rem  !important;object-fit: cover; border-radius: 50%;" alt="" class="rounded-circle object-cover w-100 h-100">
+							}
+						}
+					</div><!-- 放置照片區塊 -->
+				</div>
+				<div class="col-9 col-md-10 ">
+					<div class="card-body">
+						<div class="d-md-flex flex-column flex-lg-row justify-content-between align-items-center">
+							<div class="mb-3 mb-lg-0">
+								<p class="d-flex align-items-center justify-content-center notification-text">
+										您已同意
+									<button type="button" class="inviter btn text-secondary pe-3 ps-2" id="loadMemberModal"
+											style="margin-right: -12px;">
+										@inviter?.name
+									</button>
+									的邀約
+
+										<span class=" me-1 ps-3 pt-1"
+											  style="margin-right: -12px;filter: brightness(4); font-size: 0.8em;">
+											日期： @notification.notify_date?.ToString("MM/d")
+										</span>
+								</p>
+									
+							</div>
+							<div class="d-flex ">
+								@* 同意按鈕 *@
+								<button type="button" id="agreeBtn" class="agreeBtn btn btn-primary w-50 me-2 isWithdrawn"
+										data-notification-id="@notification.notify_id"
+										disabled>
+									同意
+								</button>
+								<button type="button"
+										id="deleteBtn"
+										class="btn btn-danger w-50"
+										data-notification-id="@notification.notify_id">
+									刪除
+								</button>
+							</div> <!-- 放置按鈕區塊 -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+	@* -------確認合租按鈕 測試中-------- *@
+	<div class="d-grid gap-2 d-md-flex justify-content-md-end ">
+		<button type="button" id="confirmButton" 
+				class="btn btn-primary me-md-2 w-100"
+				style=" display:none;">
+			確認合租
+		</button>
+	</div>
+	<hr>
+	@* -------確認合租按鈕 測試中-------- *@
+
+
+
+<div class="px-3 CustomizedScroll" style="height: 550px; overflow-y: scroll;">
+
+
+@* ----------已撤回----------- *@
+@foreach (var notification in withdrawnNotifications) 
+{
+	//判斷是否存在發出邀請的會員
+	Member? inviter = Model.InviterMembers.ContainsKey(notification.inviter_member_id)
+	? Model.InviterMembers[notification.inviter_member_id]
+	: null;
+
+	<div>
+		<div class="card mb-3">
+			<div class="row align-items-center">
+				<div class="col-3 col-md-2 ">
+					<div class="card-body">
+						@{
+							if (inviter?.avatar != null)
+							{
+								string imageBase64 = Convert.ToBase64String(inviter?.avatar);
+								string imageSrc = $"data:image/jpeg;base64,{imageBase64}";
+								<img src="@imageSrc" alt="" style="width: 4rem !important; height:4rem  !important;object-fit: cover; border-radius: 50%;" class="w-100 h-100">
+							}
+							else
+							{
+										<img src="~/images/peopleImg.png" style="width: 4rem !important; height:4rem  !important;object-fit: cover; border-radius: 50%;" alt="" class="rounded-circle object-cover w-100 h-100">
+							}
+						}
+					</div><!-- 放置照片區塊 -->
+				</div>
+				<div class="col-9 col-md-10 ">
+					<div class="card-body">
+						<div class="d-md-flex flex-column flex-lg-row justify-content-between align-items-center">
+							<div class="mb-3 mb-lg-0">
+								<p class="d-flex align-items-center justify-content-center notification-text">
+									<button type="button" class="inviter btn text-secondary" id="loadMemberModal"
+											style="margin-right: -12px;">
+										@inviter?.name
+									</button>
+									已撤回邀約
+											<span class=" me-1 ps-3 pt-1"
+												  style="margin-right: -12px;filter: brightness(4); font-size: 0.8em;">
+												日期： @notification.notify_date?.ToString("MM/d")
+											</span>
+								</p>
+							</div>
+							<div class="d-flex ">
+										<button type="button" id="agreeBtn" class="agreeBtn btn btn-primary w-50 me-2 isWithdrawn"
+												data-notification-id="@notification.notify_id"
+												disabled>
+											同意
+										</button>
+								<button type="button"
+										id="deleteBtn"
+										class="btn btn-danger w-50"
+										data-notification-id="@notification.notify_id">
+									刪除
+								</button>
+							</div> <!-- 放置按鈕區塊 -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+@* ----------待確認----------- *@
+@foreach (var notification in pendingNotifications)  @* <!-- 遍歷 List<Member> --> *@
+{
+	//判斷是否存在發出邀請的會員
+	Member? inviter = Model.InviterMembers.ContainsKey(notification.inviter_member_id)
+	? Model.InviterMembers[notification.inviter_member_id]
+	: null;
+
+	<div>
+		<div class="card mb-3">
+			<div class="row align-items-center">
+				<div class="col-3 col-md-2 ">
+					<div class="card-body">
+						@{
+							if (inviter?.avatar != null)
+							{
+								string imageBase64 = Convert.ToBase64String(inviter?.avatar);
+								string imageSrc = $"data:image/jpeg;base64,{imageBase64}";
+								<img src="@imageSrc" alt="" style="width: 4rem !important; height:4rem  !important;object-fit: cover; border-radius: 50%;" class="w-100 h-100">
+							}
+							else
+							{
+										<img src="~/images/peopleImg.png" style="width: 4rem !important; height:4rem  !important;object-fit: cover; border-radius: 50%;"  alt="" class="rounded-circle object-cover w-100 h-100">
+							}
+						}
+					</div><!-- 放置照片區塊 -->
+				</div>
+				<div class="col-9 col-md-10 ">
+					<div class="card-body">
+						<div class="d-md-flex flex-column flex-lg-row justify-content-between align-items-center">
+							<div class="mb-3 mb-lg-0">
+								<p class="d-flex align-items-center justify-content-center notification-text">
+									<button type="button" class="inviter btn text-secondary pe-4" id="loadMemberModal"
+											style="margin-right: -12px;">
+										@inviter?.name
+									</button>
+										<i class="notifyText">向您發出合租邀約</i>
+											<span class=" me-1 ps-3 pt-1"
+												  style="margin-right: -12px;filter: brightness(4); font-size: 0.8em;">
+												日期： @notification.notify_date?.ToString("MM/d")
+											</span>
+								</p>
+							</div>
+							<div class="d-flex ">
+								@* 同意按鈕 *@
+								<button type="button" id="agreeBtn" class="agreeBtn btn btn-primary w-50 me-2 isWithdrawn"
+										data-notification-id="@notification.notify_id"
+										@(agreeCount >= requiredRoommates ? "disabled" : "")>
+									同意
+								</button>
+								<button type="button" 
+										id="disAgreeBtn"
+										class="btn btn-danger w-50"
+										data-notification-id="@notification.notify_id">
+									取消
+								</button>
+							</div> <!-- 放置按鈕區塊 -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+<!-- 會員個人資料彈出視窗 已移至 Partial strat-->
+<!-- 用來裝載模態框內容的容器，模態框內容將通過 AJAX 動態載入到這裡 -->
+<div id="modal-container"></div>
+<!-- 會員個人資料彈出視窗 end-->
+</div>
+</div>

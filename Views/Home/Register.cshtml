@@ -1,0 +1,510 @@
+﻿@model Member
+@{
+    bool googleLogin = ViewBag.googleLogin ?? false;
+    bool show = ViewBag.show ?? false;
+    string color = ViewBag.color ?? "success"; // 預設顏色
+    string message = ViewBag.message ?? ""; // 預設訊息
+    bool registerfalse = ViewBag.registerfalse ?? true;
+}
+
+@if (ViewBag.show)
+{
+    @await Html.PartialAsync("_PartialAlert", new PartialAlert
+{
+    Color = color,
+    AlertText = message,
+    Show = show,
+    Time = 2000
+})
+}
+
+<section class="register py-5">
+    <div class="container d-flex flex-column align-items-center">
+        <div class="w-100 mb-3">
+            @await Html.PartialAsync("_PartialPageTitle", "註冊會員")
+        </div>
+        <form class="w-75  needs-validation" id="becomeInfo" action="Register" method="post">
+            <div class="mb-3">
+                <label for="email" class="form-label">
+                    Email(必填)
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <input type="email" class="form-control undefined" id="email" maxlength="30" placeholder="example@mail.com"
+                       name="email" value="@(googleLogin ? ViewBag.GoogleEmail : "")"  @(googleLogin ? "readonly" : "")>
+                <div class="invalid-feedback">Email格式錯誤</div>
+            </div>
+            @if (!googleLogin)
+            {
+                
+            <div class="mb-3">
+                <label for="password" class="form-label">
+                    密碼(必填)
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <div class="input-group">
+                <input type="password" class="form-control " id="password" placeholder="最少6位數密碼" minlength="6"
+                       name="password" value="">
+                        <i class="toggle-icon bi bi-eye" id="togglePassword"></i>
+                       </div>
+            </div>
+            <div class="mb-3">
+                <label for="checkPW" class="form-label">
+                    確認密碼(必填)
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <input type="password" class="form-control " id="checkPW" placeholder="最少6位數密碼" minlength="6"
+                           name="checkPW" value="">
+                <div class="invalid-feedback">與密碼不符合</div>
+            </div>
+            
+            }
+            <div class="mb-3">
+                <label for="name" class="form-label">
+                    姓名(必填)
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <input type="text" class="form-control undefined" id="name" placeholder="請輸入您的姓名" maxlength="10" name="name"
+                       value="@(googleLogin ? ViewBag.GoogleName : "") @( !registerfalse?Model.name:"")">
+            </div>
+            <div class="mb-3">
+                <label for="nickName" class="form-label">暱稱</label>
+                <input type="text" class="form-control " id="nickName" placeholder="請輸入您的小名或英文名字"
+                       name="nickname" value="@( !registerfalse?Model.nickname:"")" maxlength="10">
+            </div>
+            <div class="mb-3">
+                <label for="birthday" class="form-label">
+                    出生日期(必填)
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <input type="date" class="form-control " id="birth" name="birthday" value="@( (!registerfalse)?  Model.birthday?.ToString("yyyy-MM-dd") : "")">
+            </div>
+            <div class="genderWrapper">
+                <label>
+                    性別 (必選)
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <div class="mt-2">
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input " type="radio" name="gender" id="male"
+                                   value="男" @(!registerfalse && Model.gender == "男" ? "checked" : "") >
+                            <label class="form-check-label" for="male" style="line-height: 1.5;">男</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input " type="radio"
+                                   name="gender" id="female" value="女" @(!registerfalse && Model.gender == "女" ? "checked" : "") >
+                            <label class="form-check-label" for="female" style="line-height: 1.5;">女</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="job" class="form-label">
+                    身份
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <select id="job" name="job" class="form-select" asp-for="job">
+                    <option value="" disabled selected>--請選擇--</option>
+                    <option nane="worker" value="上班族">上班族</option>
+                    <option name="student" value="學生">學生</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">
+                    電話(必填)
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <input type="tel" class="form-control " id="phone" placeholder="09xxxxxxxx"
+                       name="phone" value="@( !registerfalse?Model.phone:"")" pattern="^09\d{8}$">
+            </div>
+            <div class="mb-3">
+                <label for="jobtime" class="form-label">
+                    上課/工作作息時間
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <select id="jobtime" name="jobtime" class="form-select"asp-for="jobtime">
+                    <option value="" disabled selected>--請選擇--</option>
+                    <option name="morning" value="早班">早班</option>
+                    <option name="afternoon" value="中班">中班</option>
+                    <option name="evening" value="晚班">晚班</option>
+                    <option name="nofixed" value="不固定">不固定</option>
+                </select>
+            </div>
+            <div class="mb-3 ">
+                <label for="introduce" class="form-label">
+                    自我介紹(必填)
+                    <span class="text-danger ms-2">*</span>
+                </label>
+                <textarea class="form-control  " id="intro" rows="4" cols="50"
+                          placeholder="請輸入自我介紹，最多 200 字" name="introduce" maxlength="200" value="@( !registerfalse?Model.introduce:"")" asp-for="introduce"></textarea>
+                <p class="text-muted text-end" id="charCount">0/200</p>
+
+            </div>
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input " type="checkbox" id="agree" name="agree"
+                           value="">
+                    <label class="form-check-label" for="agree" style="line-height: 1.5;">
+                        我已仔細閱讀並明瞭「
+                        <button type="button" class="btn p-0 text-danger" style="text-decoration: underline;"
+                                data-bs-toggle="modal" data-bs-target="#serviceModal">
+                            服務條款、免責聲明、隱私權聲明
+                        </button>」
+                        等所載內容及其意義，茲同意該等條款規定，並願遵守網站現今、嗣後規範的各種規則。
+                    </label>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary px-5 py-3 registerBtn">註冊</button>
+            </div>
+        </form>
+    </div>
+</section>
+<!-- 服務條款 -->
+<div class="modal fade" id="serviceModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="serviceModalLabel" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <button id="btn-closeservice" type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="serviceInfo">
+                <div id="SList" class="mt-0 me-2">
+                    <h1 class="text-center mb-4">Zugether服務條款</h1>
+                    <div class="px-3 serviceScroll">
+                        <section class="mb-4">
+                            <h2>服務條款</h2>
+                            <p>
+                                歡迎使用Zugether網站服務條款（以下簡稱「本條款」），使用者加入會員或一經到訪、
+                                瀏覽和使用Zugether網站（以下稱「本網站」）即表示您已閱讀、了解並同意接受以下條款。
+                                若不同意請立即停止使用本網站
+                            </p>
+                            <br>
+                            <h3>1. 網站性質</h3>
+                            <p>
+                                本網站提供合租資訊的發佈、查詢和聯絡功能，供使用者瀏覽和聯絡合租對象。
+                                網站僅提供平台，不參與具體租賃事宜。使用者對於實際承租相關問題皆直接與
+                                會員做連繫與交易，而非本網站。
+                            </p>
+                            <br>
+                            <h3>2. 使用者責任</h3>
+                            <p>
+                                會員應保證所提供的資料真實、準確。使用者在使用本網站的過程中，不得進行任何違反法律、
+                                違反公共秩序和善良風俗的行為。
+                            </p>
+                            <br>
+                            <h3>3. 資訊的真實性</h3><br>
+                            <p>
+                                3-1. Zugether並非交易之當事人，Zugether絕不介入使用者與會員間的任何買賣、服務或其他交易行為，
+                                對於使用者所獲得的服務或其他交易標的物亦不負任何擔保責任。
+                            </p><br>
+                            <p>
+                                3-2. 雖然Zugether在提供服務時會使用商業上合理的技術進行管理並多加注意，但鑒於網路的性質，
+                                本網站無法辨別及判斷所有合租資訊及會員資訊的真實性、合法性和完整性，使用者需自行判斷及核實相關訊息，
+                                如交易一方違反法律規定而出現的糾紛與不良結果，由交易雙方自行承擔所有責任。
+                            </p>
+                            <br>
+                            <h3>4. 網站的變更和終止</h3>
+                            <p>
+                                本網站保留隨時修訂本服務條款、隱私權保護政策、免責聲明及現今或嗣後頒布施行之各種規則，
+                                並將修訂或變更的內容公佈在本網站上，自公佈之日起七日內會員無異議時，上開條款、規則、政策或聲明將自動生效，
+                                且適用所有本網站提供的服務，不管是直接或間接透過網路連接的平台，如手機、電子郵件或電話。
+                            </p>
+                            <br>
+                            <h3>5. 法律適用</h3>
+                            <p>
+                                本服務條款、隱私權聲明、免責聲明及本網站現今或嗣後所頒布施行之各種規則未提及的事項將依個人資料保護法、
+                                電子簽章法、消費者保護法等之規定為之。
+                            </p>
+                            <br>
+                            <h3>6. 服務申請與登記資料</h3><br>
+                            <p>
+                                6-1. 加入成為Zugether會員，會員必須是具備完全行為能力的自然人。如未滿十八歲
+                                （或在一些法定成人年齡非為18歲的國家和地區未滿該法定成人年齡）之未成年人進行本網站之買賣交易時
+                                ，並應於您的家長（或監護人）閱讀、瞭解並同意本服務條款之所有內容及其後修改變更後，
+                                方得使用或繼續使用本服務。當您使用或繼續使用本服務時，即推定您的家長（或監護人）已閱讀、
+                                瞭解並同意接受本服務條款之所有內容及其後修改變更。若該未成年會員與交易相對人或其他第三人，
+                                因使用本網站服務所發生之糾紛，本網站概不負責。
+                            </p><br>
+                            <p>
+                                6-2. 會員資料必須正確及完整。用假名或他人的身份訊息加入會員者，無法得到法律上的保護且必須為此擔負民法和刑法上
+                                所有的責任。
+                            </p><br>
+                            <p>
+                                6-3. Zugether就會員註冊資料存有疑問，得暫時停止會員權利並要求會員提供證件確認身份，
+                                確認無誤後，會員方可繼續使用本網站提供之服務。有以下任一情形者，經事前/事後查核屬實，將限制會員使用資格：
+                            </p>
+                            <ol>
+                                <li>a.以他人的名字申請。</li>
+                                <li>b.申請服務時，必要登錄之內容不實。</li>
+                                <li>c.未滿七歲無行為能力及限制行為能力人者。</li>
+                                <li>d.違反會員合約條款被停權者要再加入時。</li>
+                                <li>e.與已加入會員的註冊電話同樣時。</li>
+                                <li>f.其他，未履行 本網站 之申請使用條件時。</li>
+                            </ol><br>
+                            <p>6-4. 登錄不實的資料被發現時網站管理者有權利直接停止服務或取消服務簽約，公司或第三者所受到的損失由涉此事件的會員來承擔 負責。</p>
+                        </section>
+                    </div>
+                </div>
+                <div id="NList" class="mt-4 me-2">
+                    <h1 class="text-center mb-4">Zugether免責聲明</h1>
+                    <div class="px-3 serviceScroll">
+                        <section class="mb-4">
+                            <h2>免責聲明</h2>
+                            <p>
+                                當您成為Zugether(以下稱「本網站」)的用戶後，即表示您已詳細閱讀及明確瞭解本網站之服務
+                                條款、隱私權保護政策，並同意在下列情況時本網站毋需承擔任何責任：
+                            </p><br>
+                            <p>1. 本網站僅提供合租資訊發佈平台，並不對租賃雙方之間的任何合約、承諾、財務往來負責。本網站對任何租賃交易過程中的損失、爭議或法律問題不負擔任何法律責任。</p>
+                            <br>
+                            <p>2. 本網站不保證合租資訊的完整性、正確性或適用性，並不對租客和房東之間的交易進行任何干預。</p><br>
+                            <p>3. 租客和房東需自行確認對方的身份、房屋真實性和合法性，本網站不負擔調查責任。</p><br>
+                            <p>4. 任何通過本網站達成的租賃交易均由雙方自行協議決定，本網站僅為資訊交流的平台，不承擔因交易引發的任何爭議責任。</p><br>
+                            <p>5. 本網站不保證任何第三方廣告或連結的內容的真實性，且不對第三方的產品或服務提供任何擔保。</p><br>
+
+                        </section>
+                    </div>
+                </div>
+                <div id="IList" class="mt-4 me-2">
+                    <h1 class="text-center mb-4">Zugether隱私權聲明</h1>
+                    <div class="px-3 serviceScroll">
+                        <section class="mb-4">
+                            <h2>隱私權聲明</h2>
+                            <p>
+                                本隱私權聲明適用於Zugether(以下稱「本網站」)所提供的服務。當您瀏覽及使用我們的網站時，
+                                即表示您同意我們收集、使用、公布和以其他形式運用您的個人資料在使用本網站時，您且同意受本隱私權聲明條款及條件所拘束
+                                ，如果您不同意，請不要使用或取得我們所提供的服務。
+                            </p><br>
+                            <p>
+                                您同意本網站可不時對本隱私權聲明作出修訂，以符合法例條規變更、個人資料收集與使用政策的改變、
+                                網站功能異動或技術更新。如果我們作出的修訂，改變了收集或使用個人資料的方式，
+                                所有變更將會發布在本隱私權聲明頁面上。因此，您應該定期閱覽隱私權政策，以了解我們最新的政策及作法。
+                                若您不同意本隱私權聲明的任何變更或修訂，請不要繼續使用本網站。
+                                若您在修訂條款生效日期後使用本網站，將被視作同意該修訂條款。
+                            </p><br>
+                            <p>本網站非常重視用戶的隱私權，並致力於保護個人資料的安全。以下是我們收集、使用和保護用戶資料的政策：</p><br>
+
+                            <h3>1. 資料收集</h3>
+                            <p>
+                                本網站對會員個人資料的收集、處理及利用，將嚴格遵守中華民國『個人資料保護法』之規範。
+                                本網站在使用者註冊、發佈合租資訊、提出合租邀約等操作時，會收集使用者的姓名、聯絡方式、電子郵件等資料。
+                            </p><br>
+                            <h3>2. 資料使用</h3>
+                            <p>本網站收集的個人資料將用於提供合租服務、改善使用者體驗、管理會員關係、解決投訴及處理技術問題。本網站絕不會將您的個人資訊出售或租借給任何第三方。</p><br>
+                            <h3>3. 資料分享</h3>
+                            <p>除非經法律允許或獲得您的同意，我們不會與第三方共享您的個人資料。僅會在法律要求的情況下提供給相關政府機關或司法部門。</p><br>
+                            <h3>4. 資料安全</h3>
+                            <p>我們將採取合理的技術和管理措施來保護您的個人信息安全，但無法保證完全的資訊安全性。請注意您在使用網路時的風險。</p><br>
+                            <h3>5. 隱私權政策變更</h3>
+                            <p>本網站會適時更新本隱私政策，當我們更改政策時，會將更新後的條款發布在本頁面上。建議用戶定期查閱以了解最新訊息。</p><br>
+
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal" id="agreebtn">同意</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="rejectbtn">不同意</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(function () {
+            var show = "@show";
+            var color = "@color";
+            if (show == "True" && color == "success") {
+                setTimeout(function () {
+                    window.location.href = '@Url.Action("Index", "Home")';
+                }, 2000);
+            }
+
+            let becomeForm = document.getElementById('becomeInfo');
+            //取得性別 & 同意書
+            let gendercheck = document.querySelectorAll('input[name="gender"]')
+            let malecheck = gendercheck[0]
+            let femalecheck = gendercheck[1]
+            let agreecheck = document.getElementById('agree')
+            // 取得 textarea 和字數顯示元素
+            const textarea = document.getElementById('intro');
+            const charCount = document.getElementById('charCount');
+            // 取得 Email & 密碼 & 確認密碼
+            let email = document.getElementById('email')
+            let password = document.getElementById('password');
+            let chechPW = document.getElementById('checkPW');
+            //取得 身份 & 作息
+            let job = document.getElementById('job');
+            let jobtime = document.getElementById('jobtime');
+
+            //控制顯示or隱藏密碼(新增)
+            document.getElementById('togglePassword').addEventListener('click', function () {
+                if (password.type === 'password') {
+                    password.type = 'text';
+                    this.classList.remove('bi-eye');
+                    this.classList.add('bi-eye-slash');
+                } else {
+                    password.type = 'password';
+                    this.classList.remove('bi-eye-slash');
+                    this.classList.add('bi-eye');
+                }
+            });
+            // 監聽輸入事件
+            textarea.addEventListener('input', function () {
+                // 更新字數顯示
+                charCount.textContent = `${textarea.value.length}/200`;
+            });
+            let pwequalValid = true;
+            //驗證密碼相符函式
+            function validatePasswords() {
+                if (password.value === chechPW.value) {
+                    chechPW.classList.remove('is-invalid');
+                    chechPW.classList.add('is-valid');
+                    pwequalValid = true;
+                } else {
+                    chechPW.classList.remove('is-valid');
+                    chechPW.classList.add('is-invalid');
+                    pwequalValid = false;
+                }
+            }
+            password.addEventListener('input', validatePasswords)
+            chechPW.addEventListener('input', validatePasswords)
+
+            //條款同意按鈕點選後 checkbox會打勾(新增)
+            $('#agreebtn').on('click', function () {
+
+                agreecheck.checked = true;
+            })
+            //條款不同意按鈕點選後 checkbox不打勾(新增)
+            $('#rejectbtn').on('click', function () {
+                agreecheck.checked = false;
+            })
+
+            //表單提交驗證
+            becomeForm.addEventListener('submit', function (event) {
+                event.preventDefault(); // 阻止表單提交
+                // 正規表達式
+                let ep = /^\w+((-\w+)|(\.\w+))*\@@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+                //取得所有欄位
+                let userinput = document.querySelectorAll('#becomeInfo .form-control');
+                let formIsValid = true;
+                let emailIsValid = true;
+                let pwValid = true;
+                let checkpwValid = true;
+                let agreeIsValid = true;
+                let genderIsValid = true;
+                let jobIsValid = true;
+                let jobtimeIsValid = true;
+              
+
+                //檢查Email是否符合正規表達式
+                if ((email.value).search(ep) == -1) {
+                    email.classList.remove('is-valid');
+                    email.classList.add('is-invalid');
+                    emailIsValid = false;
+                } else {
+                    email.classList.add('is-valid');
+                    email.classList.remove('is-invalid');
+                    emailIsValid = true;
+                }
+                //檢查密碼必填
+                if (password.value=="") {
+                    password.classList.remove('is-valid');
+                    password.classList.add('is-invalid');
+                    pwValid = false;
+                } else {
+                    password.classList.add('is-valid');
+                    password.classList.remove('is-invalid');
+                    pwValid = true;
+                }
+                //檢查確認密碼為必填
+                if (chechPW.value == "") {
+                    chechPW.classList.remove('is-valid');
+                    chechPW.classList.add('is-invalid');
+                    checkpwValid = false;
+                } else {
+                    chechPW.classList.add('is-valid');
+                    chechPW.classList.remove('is-invalid');
+                    checkpwValid = true;
+                }
+
+                //檢查性別
+                if (malecheck.checked == true || femalecheck.checked == true) {
+                    malecheck.classList.add('is-valid');
+                    malecheck.classList.remove('is-invalid');
+                    femalecheck.classList.add('is-valid');
+                    femalecheck.classList.remove('is-invalid');
+                    genderIsValid = true;
+                } else {
+                    malecheck.classList.remove('is-valid');
+                    malecheck.classList.add('is-invalid');
+                    femalecheck.classList.remove('is-valid');
+                    femalecheck.classList.add('is-invalid');
+                    genderIsValid = false;
+                }
+                //檢查同意書
+                if (agreecheck.checked == false) {
+                    agreecheck.classList.remove('is-valid');
+                    agreecheck.classList.add('is-invalid');
+                    agreeIsValid = false;
+                } else {
+                    agreecheck.classList.add('is-valid');
+                    agreecheck.classList.remove('is-invalid');
+                    agreeIsValid = true;
+                }
+                //檢查身份
+                if (!job.value) {
+                    job.classList.remove('is-valid')
+                    job.classList.add('is-invalid');
+                    jobIsValid = false;
+                } else {
+                    job.classList.add('is-valid')
+                    job.classList.remove('is-invalid');
+                    jobIsValid = true;
+                }
+                //檢查作息
+                if (!jobtime.value) {
+                    jobtime.classList.remove('is-valid')
+                    jobtime.classList.add('is-invalid');
+                    jobtimeIsValid = false;
+                } else {
+                    jobtime.classList.add('is-valid')
+                    jobtime.classList.remove('is-invalid');
+                    jobtimeIsValid = true;
+                }
+                //檢查所有欄位是否有填寫
+                userinput.forEach(field => {
+                    if (!field.value.trim()) { // 檢查欄位是否為空
+                        field.classList.remove('is-valid')
+                        field.classList.add('is-invalid'); // 若為空，加上 is-invalid 類別
+                        formIsValid = false;
+                    }
+                    else {
+                        field.classList.remove('is-invalid'); // 若有值，移除 is-invalid 類別
+                        field.classList.add('is-valid');
+                        formIsValid = true;
+                    }
+                });
+
+                if (@googleLogin.ToString().ToLower()==false) {
+                    if (formIsValid && emailIsValid && genderIsValid && agreeIsValid && jobIsValid && jobtimeIsValid && pwValid && checkpwValid && pwequalValid) {
+                        this.submit();
+                    }
+
+                } else {
+                    if (formIsValid && emailIsValid && genderIsValid && agreeIsValid && jobIsValid && jobtimeIsValid ) 
+                    {
+                        this.submit();
+                    }
+                }
+               
+            });
+        });
+       
+
+      
+    </script>
+}

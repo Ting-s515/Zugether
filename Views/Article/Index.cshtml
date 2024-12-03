@@ -1,0 +1,132 @@
+﻿@* @model IEnumerable<Zugether.DTO.ArticleDTO.ArticleViewModel> *@
+@model List<Zugether.DTO.ArticleDTO.ArticlesViewModel>
+	
+@* 因為手機板會打架，所以放一個 「不要出現回到頂端按鈕」的判斷 *@
+@{
+	ViewData["ShowBackToTop"] = false;
+}
+
+<style>
+	/* 文章下方按鈕調整 */
+
+	.articles .swiper-pagination, .swiper-pagination-bullet {
+		/* 額外新增-調整圖片下方的滑動提示-其它頁 必須放在.swiper-pagination-bullet-active 之上*/
+		background-color: #000;
+		border-radius: 0;
+		height: 8px;
+		opacity: 1;
+		width: 8px;
+	}
+
+	.articles, .swiper-pagination-bullet-active {
+		/* 額外新增-調整圖片下方的滑動提示-中間頁*/
+		background-color: #bc9b44;
+		border-radius: 0;
+		height: 8px;
+		width: 16px;
+	}
+
+</style>
+
+
+<section class="contact py-5">
+		<div class="container d-flex flex-column align-items-center">
+			<div class="w-100 mb-3">
+				@await Html.PartialAsync("_PartialPageTitle", "文章區")
+			</div>
+			<div class="swiper swiper-coverflow swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress articleSwiper">
+				@* <div class="swiper mySwiper"> *@
+				<div class="swiper-wrapper">
+
+					@foreach (var article in Model)
+					{
+						<div class="swiper-slide">
+							@* 這邊是卡片 *@
+						<a href="@Url.Action("Content", "Article", new { id = article.ArticleId })" class="h-100">
+								<div class="card " style="width:99%">
+									@* 圖片 2071x1380 *@
+								<img src="@article.PhotoBase64" alt="@article.Title" class="card-img-top object-cover" />
+									<div class="card-body  c-uniform-height">
+									<h5 class="card-title text-truncate">@article.Title</h5>
+									</div>
+								</div>
+							</a>
+							@* 卡片到這裡 *@
+						</div>
+					}
+
+				</div>
+
+				<!-- Swiper 分頁及導覽按鈕 -->
+				<div class="swiper-pagination swiper-pagination-bullets swiper-pagination-horizontal">
+					<span class="swiper-pagination-bullet swiper-pagination-bullet-active"></span>
+					<span class="swiper-pagination-bullet"></span>
+					<span class="swiper-pagination-bullet"></span>
+					<span class="swiper-pagination-bullet"></span>
+
+				</div>
+			</div>
+			</div>
+</section>
+
+
+<!-- Initialize Swiper -->
+<script>
+	$(function () {
+		var swiper = new Swiper(".articleSwiper", {
+			effect: "coverflow",
+			grabCursor: true,
+			centeredSlides: true,
+
+			// slidesPerView: 3,
+			slidesPerView: 3, // 調整原本數值，auto改為 設置為固定的3個卡片
+			// spaceBetween: 30, // 設置間距
+
+			//額外新增
+			loop: false,  // 確保可循環
+			initialSlide: 0,  // 初始顯示索引
+			//新增結束
+
+			coverflowEffect: {
+				rotate: 50,
+				stretch: 0,
+				depth: 100,
+				modifier: 1,
+				slideShadows: false,
+			},
+			//額外新增
+			pagination: {
+				el: ".swiper-pagination",
+				clickable: true,
+			},
+			//新增結束
+		});
+		//調整中
+		// 檢查視窗大小並更改 Swiper 選項以適應手機
+		function updateSwiperForMobile() {
+			if (window.innerWidth < 768) {
+				swiper.changeDirection('vertical'); // 更改為垂直滑動
+				swiper.params.slidesPerView = 1.5; // 手機上一次顯示兩張幻燈片
+				swiper.update(); // 更新 Swiper
+			} else if (window.innerWidth > 768 && window.innerWidth < 991) {
+				swiper.changeDirection('horizontal'); // 對於大螢幕恢復為水平滑動
+				swiper.params.slidesPerView = 2;
+				swiper.update(); // 更新 Swiper
+			} else {
+				swiper.changeDirection('horizontal'); // 對於大螢幕恢復為水平滑動
+				swiper.params.slidesPerView = 3;
+				swiper.update(); // 更新 Swiper
+			}
+		}
+
+
+		// 初始加載時執行
+		updateSwiperForMobile();
+
+		// 在視窗調整大小時執行
+		window.addEventListener('resize', updateSwiperForMobile);
+
+	});
+
+	
+</script>

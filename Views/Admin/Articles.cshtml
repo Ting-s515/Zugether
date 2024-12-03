@@ -1,0 +1,56 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml"; ;
+}
+@model List<Zugether.DTO.ArticleDTO.ArticleList>
+
+<div class="p-3 w-100">
+    <h3 class="text-center">文章列表</h3>
+    <hr />
+    <div class="d-flex justify-content-end">
+        <a href="/Admin/ArticleCreate" class="btn btn-success text-end">新增文章</a>
+    </div>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col" class="text-center">
+                    <a href="?sortOrder=@ViewBag.SortByaId" class="btn d-flex align-items-center justify-content-center">
+                        編號
+                        @if (ViewBag.CurrentSort == "aId_asc")
+                        {
+                            <i class="fa-solid fa-sort-up ms-3"></i>
+                        }
+                        else if (ViewBag.CurrentSort == "aId_desc")
+                        {
+                            <i class="fa-solid fa-sort-down ms-3"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-sort ms-3"></i>
+                        }
+                    </a>
+                </th>
+                <th scope="col" class="text-center">標題</th>
+                <th scope="col" class="text-center">建立日期</th>
+                <th scope="col" class="text-center">修改日期</th>
+                <th scope="col" class="text-center">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td class="text-center">@a.ArticleId</td>
+                    <td class="text-center">@a.Title</td>
+                    <td class="text-center">@a.Create_at</td>
+                    <td class="text-center">@a.Update_at</td>
+                    <td class="text-end">
+                        <a href="/Admin/ArticleEdit/@a.ArticleId" class="btn btn-success btn-sm">編輯</a>
+                        <a href="/Admin/ArticleDelete/@a.ArticleId" class="btn btn-outline-danger btn-sm">刪除</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

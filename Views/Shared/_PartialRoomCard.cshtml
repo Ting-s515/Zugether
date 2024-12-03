@@ -1,0 +1,342 @@
+﻿@using Zugether.DTO
+@using System.Linq
+@model IEnumerable<RoomViewModel>
+@await Html.PartialAsync("_PartialSearch")
+<style>
+	/* 內容文字 */
+	.card-text {
+		font-size: 18px;
+		margin: 7px 0px;
+		display: -webkit-box;
+		-webkit-line-clamp: 2; /* 顯示 2 行 */
+		-webkit-box-orient: vertical; /* 垂直排列*/
+		overflow: hidden;
+		text-overflow: ellipsis; /* 超出部分顯示省略號 */
+	}
+
+	.card-title .material-symbols-outlined {
+		margin-right: 5px !important;
+	}
+
+	@@media (max-width: 991px) {
+		.card-text {
+			font-size: 18px !important;
+			margin: 2px 0px !important;
+			display: -webkit-box !important;
+			-webkit-line-clamp: 1 !important;
+			-webkit-box-orient: vertical;
+			overflow: hidden !important;
+			text-overflow: ellipsis !important;
+		}
+
+		.material-symbols-outlined {
+			font-size: 20px !important;
+			margin: 2px 0px !important;
+			/* 垂直對齊到文字中線 */
+			vertical-align: middle !important;
+		}
+
+		.room-title {
+			font-size: 22px !important;
+		}
+
+		.card-title {
+			font-size: 22px !important;
+			margin: 4px 10px 0px 0px !important;
+			display: flex !important;
+			overflow: hidden !important;
+			text-overflow: ellipsis !important;
+			white-space: nowrap !important;
+		}
+
+			.card-title .material-symbols-outlined {
+				font-size: 22px !important;
+			}
+
+		#roommate-description {
+			margin-left: 5px !important;
+			display: -webkit-box !important;
+			-webkit-line-clamp: 2 !important;
+			-webkit-box-orient: vertical;
+			overflow: hidden !important;
+			text-overflow: ellipsis !important;
+		}
+	}
+
+	@@media (max-width: 768px) {
+		.card-href {
+			height: 600px !important;
+		}
+
+		.card-text {
+			font-size: 18px !important;
+			margin: 2px 0px !important;
+			display: -webkit-box !important;
+			-webkit-line-clamp: 1 !important;
+			-webkit-box-orient: vertical;
+			overflow: hidden !important;
+			text-overflow: ellipsis !important;
+		}
+
+		#roommate-description {
+			display: -webkit-box !important;
+			-webkit-line-clamp: 2 !important;
+			-webkit-box-orient: vertical;
+			overflow: hidden !important;
+			text-overflow: ellipsis !important;
+		}
+	}
+
+	@@media (max-width: 576px) {
+		.card-href {
+			height: 750px !important;
+		}
+
+		.card-text {
+			font-size: 18px !important;
+		}
+
+		.room-title {
+			width: 100% !important;
+		}
+
+		.card-title > span:nth-child(2) {
+			margin-left: 0 !important;
+		}
+		/* 	小於576px換行 */
+		.card-title {
+			flex-wrap: wrap !important;
+			position: relative;
+		}
+
+		.heart {
+			margin-left: auto !important;
+			position: absolute;
+			right: 0;
+			top: 10%;
+		}
+	}
+	/* 地點 */
+	.room-title {
+		font-size: 24px;
+		font-weight: bold;
+		margin-bottom: 0;
+	}
+	/* 卡片超連結 */
+	.card-href,
+	.card-href:hover {
+		color: black;
+		text-decoration: none;
+	}
+	/* 愛心 */
+	.fa-solid {
+		font-size: 25px;
+	}
+
+	.heart-checkbox {
+		display: none;
+	}
+
+	.heart-label:hover {
+		color: red;
+	}
+	/* 勾選狀態的樣式 */
+	.heart-checkbox:checked + .heart-label .fa-solid.fa-heart {
+		color: red;
+	}
+
+	.row-md-1 {
+		margin: 0;
+	}
+
+	a:hover {
+		color: black !important;
+	}
+</style>
+<div class="container mt-5">
+	<div class="row row-cols-1 row-cols-md-12 g-0 card-element">
+		@*動態區*@
+		@if (Model != null && Model.Any())
+		{
+			@foreach (var room in Model)
+			{
+				<div class="card mb-3" data-room-id="@(room.Room?.room_id)">
+					@*利用asp-route-roomID="@room.Room?.room_id)" 送對應資料*@
+					<a asp-action="Room" asp-controller="Search" asp-route-roomID="@(room.Room?.room_id)" class="card-href" id="roomLink" style="height:300px;">
+						@*asp-route-roomID 是用來設定 URL 中 roomID 參數的值*@
+						<div class="row g-1 d-flex">
+							<div class="col-md-4 d-flex align-items-stretch" style="height:300px;">
+								@{
+									if (room.roomImages != null && room.roomImages.Any())
+									{
+										var firstImage = room.roomImages.FirstOrDefault();
+										string imageBase64 = Convert.ToBase64String(firstImage.room_photo);
+										string imageType = $"data:image/{firstImage.photo_type};base64,{imageBase64}";
+										<img src="@imageType" alt="Room Image" class="img-fluid rounded-md-start" style="object-fit:cover;width:100%;" loading="lazy">
+									}
+									else
+									{
+										<img src="~/images/rooms/room@(room.Room?.room_id %10+1).jpg" alt="Room Image" class="img-fluid rounded-md-start" style="object-fit:cover;width:100%;" loading="lazy">
+									}
+								}
+							</div>
+							<div class="col-md-8 d-flex align-items-stretch" style="max-height:300px;">
+								<div class="card-body" style="max-height:300px; padding:15px;">
+									<div class="row-md-1">
+										<p class="card-title d-flex justify-content-start align-items-center mb-0">
+											<span class="room-title">@($"{room.Room?.room_title}")</span>
+											@if (room.deviceList?.FirstOrDefault()?.canSmoking == true)
+											{
+												<span class="d-flex align-items-center card-slogan ms-3">
+													<span class="material-symbols-outlined me-1">smoking_rooms</span>
+													<span class="d-sm-inline">可抽菸</span>
+												</span>
+											}
+											@if (room.deviceList?.FirstOrDefault()?.canPet == true)
+											{
+												<span class="d-flex align-items-center card-slogan ms-3">
+													<span class="material-symbols-outlined me-1">pets</span>
+													<span class="d-sm-inline">可養寵物</span>
+												</span>
+											}
+											<span class="heart ms-auto" style="">
+												<input id="heart-checkbox-@(room.Room?.room_id)" type="checkbox" class="heart-checkbox">
+												<label for="heart-checkbox-@(room.Room?.room_id)" class="heart-label">
+													<i class="fa-solid fa-heart"></i>
+												</label>
+
+											</span>
+										</p>
+										<p class="card-text mt-0">@($"{room.Room?.post_date?.ToString()}")</p>
+
+									</div>
+									<div class="row row-cols-1 row-cols-sm-2">
+										<div class="col-12 col-md-6">
+											<div class="d-flex align-items-center card-text">
+												<span class="material-symbols-outlined me-2">
+													floor
+												</span>
+												@($"{room.Room?.floor}")樓
+											</div>
+										</div>
+										<div class="col-12 col-md-6">
+											<div class="d-flex align-items-center card-text ">
+												<span class="material-symbols-outlined me-2">
+													night_shelter
+												</span>
+												@($"{room.Room?.room_type}")
+											</div>
+										</div>
+										<div class="col-12 col-md-6">
+											<div class="d-flex align-items-center card-text ">
+												<span class="material-symbols-outlined me-2">bed</span>
+												@($"{room.Room?.bed_type}")
+											</div>
+										</div>
+										<div class="col-12 col-md-6">
+											<div class="d-flex align-items-center card-text ">
+												<span class="material-symbols-outlined me-2">paid</span>
+												租金@($"{room.Room?.rent}")/月(不含管理費)
+											</div>
+										</div>
+										<div class="col-12 col-md-6">
+											<div class="d-flex align-items-center card-text ">
+												<span class="material-symbols-outlined me-2"
+													  style="transform: rotate(-45deg);">width</span>
+												@($"{room.Room?.room_size}")坪
+											</div>
+										</div>
+										<div class="col-12 col-md-6">
+											<div class="d-flex align-items-center card-text ">
+												<span class="material-symbols-outlined me-2">person</span>
+												尋求@($"{room.Room?.roommate_num}")位
+											</div>
+										</div>
+										<div class="col-12 col-md-6">
+											<div class="d-flex align-items-center card-text ">
+												<span class="material-symbols-outlined me-2">location_on</span>
+												@($"{room.Room?.address}")
+											</div>
+										</div>
+										<div class="col-12 col-md-6">
+											<div class="d-flex align-items-center card-text">
+												<span class="material-symbols-outlined me-2">work</span>
+												希望室友工作時間: @($"{room.Room?.prefer_jobtime}")
+											</div>
+										</div>
+									</div>
+									<div class="mt-2  d-flex align-items-center">
+										<div class="d-flex align-items-start">
+											<span class="material-symbols-outlined me-2">folded_hands</span>
+											<span class="card-text text-break" id="roommate-description" style="margin-top:0px;">@($"{room.Room?.roommate_description}")</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</a>
+				</div>
+			}
+		}
+		else
+		{
+			@*顯示查無結果*@
+			<h1>@ViewBag.Message</h1>
+		}
+		@* <h3>搜尋條件: @ViewBag.CityList</h3> *@
+		<div id="alert-container" style="margin:20px;"></div>
+		@*動畫Loading*@
+		<div id="loading-container"></div>
+	</div>
+</div>
+
+<script>
+	$(function () {
+		var isLogin = @JsonConvert.SerializeObject(ViewContext.HttpContext.Session.GetString("isLogin") == "true");
+		var memberID, memberName, memberEmail;
+		if (isLogin) {
+			memberID = sessionStorage.getItem("memberID");
+			memberName = sessionStorage.getItem("memberName");
+			memberEmail = sessionStorage.getItem("memberEmail");
+		}
+		checkFavoriteRoom();
+		// 使用 PerformanceNavigationTiming API 來檢測是否從快取載入
+		const [navigation] = performance.getEntriesByType("navigation");
+		if (navigation && navigation.type === "back_forward") {
+			console.log("載入方式", navigation.type);
+			checkFavoriteRoom();
+			console.log("檢查checkFavoriteRoom()")
+		}
+
+		function checkFavoriteRoom() {
+			// var memberID = 1;
+			//id開頭=
+			$('[id^="heart-checkbox-"]').prop('checked', false);
+			$.ajax({
+				url: '@Url.Action("checkFavoriteRoom", "partialView")',
+				type: 'POST',
+				data: { memberID: memberID },
+				success: function (response) {
+					// 返回room_id
+					console.log("checkFavoriteroomID= ", response);
+					response.forEach(function (roomID) {
+						$('#heart-checkbox-' + roomID).prop('checked', true);
+					});
+				},
+				error: ajaxError
+			});
+		}
+
+	});
+	//通用錯誤函式
+	function ajaxError(xhr, status, error) {
+		console.log("Error: " + (xhr.responseJSON?.errorMessage || ""));
+		console.log("Detailed Error: " + (xhr.responseJSON?.innerException || ""));
+		console.log("Stack Trace: " + (xhr.responseJSON?.stackTrace || ""));
+		console.log("Status: " + status + "state" + state);
+	}
+</script>
+
+
+
+

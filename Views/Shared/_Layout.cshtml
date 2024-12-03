@@ -1,0 +1,421 @@
+﻿@using Newtonsoft.Json
+@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - Zugether</title>
+	<!-- bootstrap -->
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+	<!-- googleFonts -->
+	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+	<!-- font-awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<!-- animate.css -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" integrity="sha512-c42qTSw/wPZ3/5LBzD+Bw5f7bSF2oxou6wEb+I/lqeaKV5FDIfMvvRp772y4jcJLKuGUOpbJMdg/BTl50fJYAw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<!-- swiper -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+	<!-- cssReset -->
+	<link rel="stylesheet" href="~/css/cssReset.css" asp-append-version="true" />
+	<!-- site -->
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<!-- all isolation css -->
+	<link rel="stylesheet" href="~/Zugether.styles.css" asp-append-version="true" />
+	<!-- jQuery -->
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<!-- bootstrap js-->
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<!-- swiper js-->
+	<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+	<!-- axios -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js" integrity="sha512-DdX/YwF5e41Ok+AI81HI8f5/5UsoxCVT9GKYZRIzpLxb8Twz4ZwPPX+jQMwMhNQ9b5+zDEefc+dcvQoPWGNZ3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
+</head>
+<body>
+	@{
+		bool loginshow = TempData["loginshow"] as bool? ?? false;
+		string logincolor = TempData["logincolor"] as string ?? "success"; // 預設顏色
+		string loginmessage = TempData["loginmessage"] as string ?? ""; // 預設訊息
+		bool isLogin = ViewContext.HttpContext.Session.GetString("isLogin") == "true";
+	}
+	@if (loginshow)
+	{
+		@await Html.PartialAsync("_PartialAlert", new PartialAlert
+		{
+			Color = logincolor,
+			AlertText = loginmessage,
+			Show = loginshow,
+			Time = 2000
+		})
+	}
+	<nav class="navbar bg-primary">
+		<a asp-controller="Home" asp-action="Index" class="">
+			<img src="~/images/Logo.png" alt="logo" class="logo" style="width:170px; height:60px" />
+		</a>
+		<ul class="menu bg-primary ">
+			<li class="nav-item">
+				<a href="/Article/Index" class="navLink w-100 p-3 lightSecondary">
+					文章區
+				</a>
+			</li>
+			@if (isLogin)
+			{
+				@*改成用ajax，送會員編號*@
+				<li class="nav-item">
+					<a href="#" class="navLink w-100 p-3 lightSecondary" id="favoriteRoom">
+						<i class="bi bi-heart-fill me-2"></i>我的收藏
+					</a>
+					<div id="loading-container"></div>
+				</li>
+				<li class="nav-item">
+					<a href="/Member/Notify" class="navLink btn w-100 p-3 lightSecondary" id="memberName">
+						<i class="bi bi-person-fill me-2"></i>
+					</a>
+				</li>
+				<li class="nav-item">
+					@* 增加id *@
+					<button type="button" class="navLink btn w-100 p-3 lightSecondary" id="logoutbtn">登出</button>
+				</li>
+			}
+			else
+			{
+				<li class="nav-item"><button type="button" class="navLink btn w-100 p-3 lightSecondary" data-bs-toggle="modal" data-bs-target="#loginModal">登入 / 註冊</button></li>
+			}
+			}
+		</ul>
+		<div class="burger">
+			<div class="bar"></div>
+			<div class="bar"></div>
+			<div class="bar"></div>
+		</div>
+	</nav>
+
+
+	@*以下是登入畫面*@
+
+	<div class="modal fade" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+		 aria-labelledby="loginModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header border-bottom-0">
+					<button id="btn-closelogin" type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="loginInfo">
+					<form class="needs-validation" id="loginform" asp-controller="Home" asp-action="Login" method="post">
+						<div class="mb-3">
+							<label for="loginEmail" class="form-label">Email</label>
+							<input type="email" class="form-control" id="loginEmail" placeholder="請輸入信箱"
+								   name="email" value="" maxlength="30">
+							<div class="invalid-feedback">請輸入正確Email格式</div>
+						</div>
+						<div class="mb-3">
+							<label for="loginPassword" class="form-label">密碼</label>
+							<div class="input-group" id="PWBox">
+							<input type="password" class="form-control" id="loginPassword"
+								   placeholder="請輸入密碼" name="password" value="" minlength="6">
+								<i class="toggle-icon bi bi-eye" id="ShowPW"></i>
+							<div class="invalid-feedback">密碼為必填</div>
+							</div>
+						</div>
+						<div class="mb-3 d-flex justify-content-between align-items-center">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" id="remember" disabled>
+								<label class="form-check-label" for="remember"
+									   style="line-height: 1.5;">記住Email</label>
+							</div>
+							<button type="button" class="btn" id="forgetPWbtn">忘記密碼?</button>
+						</div>
+						<div class="flex-column border-top-0">
+							<button type="submit" class="btn btn-primary w-100 mb-2" id="loginbtn">登入</button>
+							@Html.ActionLink("註冊", "Register", "Home", null, new { @class = "btn btn-secondary w-100" })
+						</div>
+					</form>
+					<!-- 第三方登入按鈕 -->
+					<div id="otherLoginContent" class="">
+						<hr>
+						<a href="@Url.Action("GoogleLogin", "Home")" class="btn w-100 d-flex align-items-center justify-content-center mt-2 thirdParty ">
+							<img src="~/images/Google.png" alt="Google icon" class="me-2 " id="googleImg" style="max-height:30px;">使用Google登入
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	@*登入畫面程式碼到這邊結束*@
+
+
+
+	<main role="main">
+		@RenderBody()
+	</main>
+
+
+	<footer class="bg-primary footer py-5">
+		<div class="container">
+			<ul class="pages d-flex align-items-center justify-content-center mb-3">
+				<li><a href="/" class='px-4 py-3'>首頁</a></li>
+				<li><a href="/Home/About" class='px-4 py-3'>關於我們</a></li>
+				<li><a href="/Home/Contact" class='px-4 py-3'>聯絡我們</a></li>
+			</ul>
+			<ul class="contact d-md-flex align-items-center justify-content-center text-white text-center">
+				<li class="px-3 py-3"><a href="tel:+0912345678"><i class="bi bi-telephone me-3"></i>0912345678</a></li>
+				<li class="px-3 py-3"><a href="mailto:a1234@gmail.com"><i class="bi bi-envelope me-3"></i>a1234@gmail.com</a></li>
+				<li class="px-3 py-3"><p>地址 :台中市公益路二段51號18樓</p></li>
+			</ul>
+			<a href="/Admin/Index">後台</a>
+		</div>
+	</footer>
+
+
+	@await RenderSectionAsync("Scripts", required: false)
+	<!-- site js -->
+	<script src="~/js/site.js" asp-append-version="true"></script>
+	<script>
+		$(function () {
+			var isLogin = @JsonConvert.SerializeObject(ViewContext.HttpContext.Session.GetString("isLogin") == "true");
+			var memberID, memberName, memberEmail;
+			if (isLogin) {
+				memberID = sessionStorage.getItem("memberID");
+				memberName = sessionStorage.getItem("memberName");
+				memberEmail = sessionStorage.getItem("memberEmail");
+			}
+
+			$(".burger").on("click", function () {
+				$(".burger").toggleClass("active");
+				$(".menu").toggleClass("active");
+			})
+			$(".navLink").on("click", function () {
+				$(".burger").toggleClass("active");
+				$(".menu").toggleClass("active");
+			})
+			//取得忘記密碼的按鈕
+			var forget = document.querySelector("#loginform>.d-flex>button")
+			//保留原始畫面
+			var loginModal = $("#loginInfo>form");
+			var otherLogin = $("#loginInfo>div")
+			//忘記密碼點擊事件
+			$(forget).on('click', forgetpw)
+			// 點擊忘記密碼時原本的登入視窗隱藏並顯示輸入email
+			function forgetpw() {
+				loginModal.detach();
+				otherLogin.detach();
+
+				$("#loginInfo").append('<form class="needs-validation" id="resetPWForm"  method="post" action="/Home/ForgetPassword"><label for="Email" class="form-label"></label><div class="input-group mb-3" id="forgetemailcheck"><input type="email" name="Email" id="validateEmail" placeholder="請輸入Email" class="form-control w-75"><button type="button" class="btn btn-primary">驗證信箱</button><div class="invalid-feedback">Email格式錯誤</div><span id="emailMessage"></span></div></form>')
+
+				var emailverifybtn = document.querySelector("#forgetemailcheck > button")
+				//驗證信箱點擊事件
+				$(emailverifybtn).on('click', emailverify)
+				//取得重設密碼表單
+				let resetPWForm = document.getElementById("resetPWForm");
+
+				//點擊驗證信箱時，驗證成功會跑出密碼輸入畫面，驗證失敗會跑出錯誤訊息
+				function emailverify() {
+					var userinput = $("#validateEmail").val()
+					//email驗證格式(pattern)
+					var ep = /^\w+((-\w+)|(\.\w+))*\@@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+					//驗證電子信箱格式
+					if (userinput == "" | userinput.search(ep) == -1) {
+						// alert("電子信箱輸入格式錯誤")
+						$("#validateEmail").addClass('is-invalid')
+					}
+					else {
+						$("#validateEmail").removeClass('is-invalid')
+
+						fetch('/Home/CheckEmail', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({ email: userinput })
+						})
+							.then(response => response.json())
+							.then(data => {
+								console.log(data)
+								const message = data.exists ? "Email 正確，請修改密碼" : "此 Email 未註冊";
+								const msgcolor = data.exists ? "green" : "red";
+								document.getElementById("emailMessage").innerText = message;
+								document.getElementById("emailMessage").style.color = msgcolor;
+								if (data.exists && $("#resetPw").length === 0) {
+
+									// 顯示輸入密碼畫面
+									$("#resetPWForm").append(
+										'<div class="mb-3"><label for="ResetPassword" class="form-label">密碼</label><input type="password" class="form-control" id="resetPw" placeholder="最少6位數密碼" minlength="6" name="ResetPassword" value="" required></div><div class="mb-3"><label for="CheckResetPw" class="form-label">確認密碼</label><input type="password" class="form-control" id="checkResetPw" placeholder="最少6位數密碼" minlength="6" name="CheckRestPw" value="" required><div class="invalid-feedback">與密碼不符</div></div><div><button type="submit" class="btn btn-primary w-100 mb-2">送出</button></div>')
+
+									// 將按鈕及input變成不可點擊更改
+									let inputtext = document.getElementById('validateEmail')
+									inputtext.readOnly = true;
+									emailverifybtn.disabled = true;
+
+
+									//取得新密碼 &新確認密碼
+									let resetPw = document.getElementById("resetPw");
+									let checkResetPw = document.getElementById("checkResetPw");
+									//驗證密碼相符函式
+									function checkPasswords() {
+										if (checkResetPw.value === resetPw.value && checkResetPw.value != "" && resetPw.value != "") {
+											checkResetPw.classList.remove('is-invalid');
+											checkResetPw.classList.add('is-valid');
+										} else {
+											checkResetPw.classList.remove('is-valid');
+											checkResetPw.classList.add('is-invalid');
+										}
+									}
+									resetPw.addEventListener('input', checkPasswords)
+									checkResetPw.addEventListener('input', checkPasswords)
+
+									//更改密碼驗證
+									resetPWForm.addEventListener("submit", function (event) {
+										event.preventDefault();
+										console.log(userinput);
+										if (checkResetPw.value == resetPw.value && checkResetPw.value != "" && resetPw.value != "") {
+											resetPWForm.submit();
+										}
+									})
+								}
+
+							})
+
+
+					}
+
+				}
+
+			}
+			// }
+			//點擊登入面的X會恢復顯示最一開始的畫面，並移除忘記密碼畫面
+			$("#btn-closelogin").on('click', function () {
+				$('#loginInfo>div').detach();
+				$('#loginInfo>form').detach();
+
+				$("#loginInfo").append(loginModal);
+				$("#loginInfo").append(otherLogin);
+
+			})
+			//控制 記住Email 在使用者有輸入Eamil時才可以勾選
+			let rememberEmail = document.getElementById('remember');
+			let rememberEmailText = document.querySelector('#remember+label')
+			let loginEmail = document.getElementById('loginEmail');
+			//正規表達式
+			var ep = /^\w+((-\w+)|(\.\w+))*\@@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+			// 監聽Email輸入事件
+			loginEmail.addEventListener('input', function () {
+				if (loginEmail.value.length > 0) {
+					rememberEmail.disabled = false;
+					rememberEmailText.classList.add('rememberHover')
+				} else {
+					rememberEmailText.classList.remove('rememberHover')
+					rememberEmail.disabled = true;
+					rememberEmail.checked = false;
+				}
+			});
+			//登入後點擊UserName跳轉會員頁面
+			$('.bi-person-fill').closest('.nav-item').on('click', function () {
+
+				window.location.href = "/Member/Notify";
+
+			})
+
+			//登入的信箱及密碼取得
+			let getloginform = document.getElementById('loginform')
+			let loginpwd = document.getElementById('loginPassword')
+			//登入的信箱及密碼驗證
+			getloginform.addEventListener('submit', async function (event) {
+				event.preventDefault();
+				let loginemailcheck = true;
+				let loginpwdcheck = true;
+				//Email未輸入OR不符合格式
+				if (loginEmail.value == "" || (loginEmail.value).search(ep) == -1) {
+					loginEmail.classList.add('is-invalid')
+					loginemailcheck = false;
+				} else {
+					loginemailcheck = true;
+					loginEmail.classList.remove('is-invalid')
+				}
+				//密碼未輸入
+				if (loginpwd.value == "") {
+					loginpwd.classList.add('is-invalid')
+					loginpwdcheck = false;
+				} else {
+					loginpwd.classList.remove('is-invalid')
+					loginpwdcheck = true;
+				}
+				//檢查記住信箱是否被勾選
+				if (rememberEmail.checked == true) {
+
+					sessionStorage.setItem("rememberEmail", loginEmail.value);
+				} else {
+					sessionStorage.removeItem("rememberEmail")
+				}
+
+				//帳號密碼皆通過
+				if (loginemailcheck && loginpwdcheck) {
+					this.submit();
+				}
+
+			});
+
+			//控制顯示or隱藏密碼(新增)
+			document.getElementById('ShowPW').addEventListener('click', function () {
+				if (loginpwd.type === 'password') {
+					loginpwd.type = 'text';
+					this.classList.remove('bi-eye');
+					this.classList.add('bi-eye-slash');
+				} else {
+					loginpwd.type = 'password';
+					this.classList.remove('bi-eye-slash');
+					this.classList.add('bi-eye');
+				}
+			});
+			//當前一次登入有勾選記住信箱時顯示前一次的信箱
+			saveEmail = sessionStorage.getItem('rememberEmail');
+			if (sessionStorage.getItem('rememberEmail')) {
+				loginEmail.value = saveEmail;
+				rememberEmail.disabled = false;
+				rememberEmail.checked = true;
+			}
+
+			//點擊登出按鈕時清除登入資料
+			$('#logoutbtn').on('click', function () {
+		@isLogin=false;
+				// sessionStorage.clear();
+				const keysToKeep = ['rememberEmail'];
+
+				Object.keys(sessionStorage).forEach(key => {
+					if (!keysToKeep.includes(key)) {
+						sessionStorage.removeItem(key);
+					}
+				});
+				window.location.href = "/Home/Logout"
+			})
+			//登入時取得使用者名稱放到SeessionStorage
+			if (isLogin) {
+				$('#memberName').append(memberName);
+			}
+
+			//我的收藏
+			$('#favoriteRoom').click(function (e) {
+				e.preventDefault();
+				console.log("memberID=", memberID);
+				$.ajax({
+					url: '@Url.Action("FavoriteMemberID", "Member")',
+					type: "POST",
+					data: { memberID: memberID },
+					success: function (response) {
+						// console.log(response.message, response.state);
+						$('#loading-container').load('/partialView/Loading', {
+							IsLoading: true,
+							Time: 2000
+						});
+						window.location.href = "/Member/FavoriteRoom";
+					},
+				});
+			});
+
+		});
+	</script>
+</body>
+</html>

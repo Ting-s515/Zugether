@@ -1,0 +1,21 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model Room
+
+<div class="p-3 w-100">
+    <h3 class="text-center">刪除 「@Model.room_title」 房間</h3>
+    <p>房間編號 :  @Model.room_id</p>
+    <p>房間標題 :  @Model.room_title</p>
+    <p>刊登日期 :  @Model.post_date</p>
+    <p> 狀態 :  <span id="statusText" class="@((Model.isEnabled ?? false) ? "text-success" : "text-danger")">@((Model.isEnabled ?? false) ? "上架" : "未上架")</span></p>
+
+
+    <form action="/Admin/ConfirmRoomDelete" method="post" class="mt-3">
+        <input type="hidden" id="room_id" name="room_id"
+               value="@Model.room_id" />
+        <input type="submit" value="刪除" class="btn btn-danger" />
+        <a href="/Admin/Rooms" class="btn btn-outline-dark">取消</a>
+    </form>
+</div>

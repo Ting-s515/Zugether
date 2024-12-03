@@ -1,0 +1,33 @@
+﻿@media (max-width:992px) {
+    .aboutContent{
+        width: 100% !important;
+    }
+    
+}
+
+.aboutContent {
+    background-image: url('/images/aboutBg.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 75%;
+}
+
+.aboutTxt {
+    background-color: #ecdf121f;
+    font-size: 20px;
+}
+    
+
+    @media (max-width:768px) {
+        .aboutTxt {
+            max-height: 450px;
+            overflow-y: scroll;
+        }
+    }
+
+    @media(max-width: 500px) {
+        .aboutTxt {
+            font-size: 18px;
+        }
+    }

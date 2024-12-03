@@ -1,0 +1,78 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="p-3 w-100">
+    <h3 class="text-center">刊登文章</h3>
+    <hr />
+    <a href="/Admin/Articles" class="btn btn-primary mb-3">上一頁</a>
+    <form method="post" action="/Admin/ArticleCreate" enctype="multipart/form-data">
+       <div class="mb-3">
+            <label for="title" class="form-label">文章標題</label>
+            <input type="text" class="form-control" name="title" id="title"/>
+       </div>
+        <div class="mb-3">
+            <label for="content" class="form-label">文章內容</label>
+            <div id="content"></div>
+            <input type="hidden" name="content" id="hiddenContent">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">上傳圖片</label>
+            <div class="articlePhoto mb-3">
+                <input type="file" accept="image/*" id="photo" name="photo" class="d-none" />
+                <label type="button" for="photo" class="text-center py-5 w-100 mb-3 rounded" style="border: 1px dashed gray">
+                    <i class="fa fa-plus text-gray" aria-hidden="true" style="font-size: 50px"></i>
+                    <p class="text-gray">新增文章圖片</p>
+                </label>
+            </div>
+            <img id="articlePhoto" class="w-100" style="height:400px" />
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-5 py-3" id="createArticle">新增文章</button>
+        </div>
+    </form>
+    
+</div>
+
+
+<script>
+    
+    var quill = new Quill("#content", {
+        theme: "snow", // 模板
+        modules: {
+            toolbar: [
+                // 工具列列表[註1]
+                ['bold', 'italic', 'underline', 'strike'], // 粗體、斜體、底線和刪節線
+                ['blockquote'], // 區塊、程式區塊
+                [{ 'header': 1 }, { 'header': 2 }], // 標題1、標題2
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }], // 清單
+                [{ 'script': 'sub' }, { 'script': 'super' }], // 上標、下標
+                [{ 'indent': '-1' }, { 'indent': '+1' }], // 縮排
+                [{ 'direction': 'rtl' }], // 文字方向
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],// 標題
+                [{ 'color': [] }, { 'background': [] }], // 顏色
+                [{ 'align': [] }], // 文字方向
+                ['clean'] // 清除文字格是
+            ]
+        }
+    });
+    
+
+    $("#photo").on("change", function (e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+            const photo = reader.result;
+            $("#articlePhoto").attr("src", photo);
+        }, false);
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    })
+
+    $("form").on("submit", function () {
+        var content = $(".ql-editor").html(); // 獲取 Quill 的內容
+        $("#hiddenContent").val(content)
+    });
+
+</script>

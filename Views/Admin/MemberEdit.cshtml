@@ -1,0 +1,50 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model Member
+
+
+<div class="p-3 w-100">
+    <h3 class="text-center">編輯 「@Model.member_id」 會員</h3>
+    <form action="/Admin/ConfirmMemberEdit" method="post">
+        <p>會員編號 :  @Model.member_id</p>
+        <input type="hidden" id="member_id"
+               name="member_id" value="@Model.member_id" />
+        <p>會員 emial : @Model.email</p>
+        <p>會員姓名 :  @Model.name</p>
+        <p>會員暱稱 :  @Model.nickname</p>
+        <p>職業 :  @Model.job</p>
+        <div class="mb-3">
+            <label for="birth" class="form-label">
+                出生日期
+            </label>
+            <input type="date" class="form-control" id="birth" name="birthday" value="@(Model.birthday?.ToString("yyyy-MM-dd") ?? "")">
+        </div>
+        <div class="genderWrapper">
+            <label>
+                性別  
+            </label>
+            <div class="mt-2">
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input " type="radio" name="gender" id="男"
+                               value="男" @(Model.gender == "男" ? "checked" : "") required>
+                        <label class="form-check-label" for="男" style="line-height: 1.5;">男</label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio"
+                               name="gender" id="女" value="女" @(Model.gender == "女" ? "checked" : "")>
+                        <label class="form-check-label" for="女" style="line-height: 1.5;">女</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="確定" class="btn btn-success" /> |
+            <a href="/Admin/Members" class="btn btn-outline-danger">取消</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,26 @@
+﻿.avatar .avatar-figure {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+@media (max-width: 576px) {
+    .avatar .avatar-figure {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+.avatar .avatar-figcaption {
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    top: 0;
+    border-radius: 100%;
+    opacity: 0;
+}
+
+    .avatar .avatar-figcaption:hover {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.5);
+    }

@@ -1,0 +1,181 @@
+﻿@* <style>
+
+    .row:hover .col:not(:hover) {
+        filter: blur(5px); 
+        transition: filter 0.3s ease;
+    }
+
+    .col:hover {
+        filter: none; 
+    }
+</style> *@
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml"; ;
+}
+
+@model List<Member>
+@{
+    var male = 0;
+    var female = 0;
+    var student = 0;
+    var worker = 0;
+    var sm = 0;
+    var sf = 0;
+    var wm = 0;
+    var wf = 0;
+
+    foreach (var m in Model)
+    {
+
+        if(m.gender == "男")
+        {
+            male ++;
+        }
+        else
+        {
+            female ++;
+        }
+        if (m.job == "學生")
+        {
+            student ++;
+        }
+        else
+        {
+            worker ++;
+        }
+        if (m.gender == "男" && m.job == "學生")
+        {
+            sm ++;
+        }
+        else if (m.gender == "女" && m.job == "學生")
+        {
+            sf ++;
+        }
+        else if (m.gender == "男" && m.job == "上班族")
+        {
+            wm ++;
+        }
+        else
+        {
+            wf ++;
+        }
+    }
+}
+<style>
+    .c3-axis-x .tick text {
+        transform: translateY(5px); /* Adjust the value as needed */
+    }
+</style>
+
+<div class="p-3 w-100">
+    <h3 class="text-center">統計</h3>
+    <hr />
+    <div class="row row-cols-1 row-cols-lg-2 g-3">
+        <div class="col ">
+            <div class="bg-light border rounded p-3">
+                <h3>本網站男女比例</h3>
+                <p>男 : @male 位</p>
+                <p>女 : @female 位</p>
+                <div id="genderChart" class="w-100"></div>
+            </div>
+          
+        </div>
+        <div class="col">
+            <div class="bg-light border rounded p-3">
+                <h3>本網站職業比例</h3>
+                <p>學生 : @student 位</p>
+                <p>上班族 : @worker 位</p>
+                <div id="jobChart" class="w-100"></div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="bg-light border rounded p-3">
+                <h3>本網站職業男女比例</h3>
+                <div class="mb-3">
+                    <p>男學生 : @sm 位</p>
+                    <p>女學生 : @sf 位</p>
+                    <p>男上班族 : @wm 位</p>
+                    <p>女上班族 : @wf 位</p>
+                </div>
+                <div id="jobGenderChart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+	var chart = c3.generate({
+        bindto: "#genderChart",
+        data: {
+            columns: [
+                ['男性', @male],
+                ['女性', @female],
+             
+            ],
+            type: 'pie',
+            onclick: function (d, i) { console.log("onclick", d, i); },
+            onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+            onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+        },
+        pie: {
+            title: "男女比例",
+            label: {
+                format: function (value, ratio, id) {
+                    return id + d3.format(".0f")(value) + "位";
+                    //return [id , d3.format(".0f")(value)];
+                }
+            }
+        }
+	});
+
+    var chart = c3.generate({
+        bindto: "#jobChart",
+        data: {
+            columns: [
+                ['學生', @student],
+                ['上班族', @worker],
+            ],
+            type: 'pie',
+            onclick: function (d, i) { console.log("onclick", d, i); },
+            onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+            onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+        },
+        pie: {
+            title: "職業比例",
+            label: {
+                format: function (value, ratio, id) {
+                    return id + d3.format(".0f")(value) + "位";
+                    //return [id , d3.format(".0f")(value)];
+                }
+            }
+        }
+    });
+    var chart = c3.generate({
+        bindto: "#jobGenderChart",
+        data: {
+            columns: [
+                ['男性', '@sm' , '@wm'],
+                ['女性', '@sf' , '@wf'],
+
+            ],
+            type: 'bar',
+            onclick: function (d, i) { console.log("onclick", d, i); },
+            onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+            onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+        },
+        bar: {
+            title: "職業男女比例",
+            width: {
+                ratio: 0.5 // this makes bar width 50% of length between ticks
+            }
+        },
+        //客製左邊數據
+        axis: {
+            //客製 X 軸內容
+            x: {
+                type: "category",
+                categories: ["學生", "上班族"],  
+            }
+        },
+    });
+</script>

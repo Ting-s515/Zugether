@@ -1,0 +1,23 @@
+﻿@{
+	Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@model Zugether.DTO.ArticleDTO.ArticleViewModel
+
+<div class="p-3 w-100">
+	<h3 class="text-center">刪除 「 @Model.Title」 文章</h3>
+	<p>文章編號 :  @Model.ArticleId</p>
+	<p class="article-date">發布時間：<strong>@Model.Create_at</strong></p>
+	<div class="article-image">
+		<img src="@ViewBag.articleImage" alt="@Model.Title" class="w-100" style="height:400px" />
+	</div>
+	<div class="mb-3">
+		@Html.Raw(Model.Content)
+	</div>
+	<form action="/Admin/ConfirmArticleDelete" method="post">
+		<input type="hidden" id="article_id" name="article_id"
+			   value="@Model.ArticleId" />
+		<input type="submit" value="刪除" class="btn btn-danger " />
+		<a href="/Admin/Articles" class="btn btn-outline-dark">取消</a>
+	</form>
+</div>
+

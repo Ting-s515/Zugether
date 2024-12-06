@@ -1,0 +1,735 @@
+﻿@using Zugether.DTO
+@model AllRoomInfoDTO
+
+<style>
+    .btn-delete {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(50%,-50%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+    }
+
+    @@media (min-width: 768px) {
+        .img-wrapper {
+            width: 50% !important
+        }
+    }
+
+    .roomPhoto, .consentPhoto {
+        height: 250px;
+    }
+
+    #roomPhotos:disabled + label {
+        cursor: not-allowed; /* 禁止符號 */
+        opacity: 0.5; /* 可視化提示禁用狀態 */
+    }
+</style>
+
+<section class="memberLayout container py-5">
+    <div class="d-flex flex-column flex-md-row">
+        @await Html.PartialAsync("_PartialMemberListGroup")
+        <div class="w-100  ps-md-5">
+            @await Html.PartialAsync("_PartialPageTitle", "修改房間")
+            <form id="editRoomForm">
+                <div class="row row-cols-1 row-cols-md-2">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">房間標題</label>
+                            <input type="text" class="form-control" id="title" name="room_title" value="@(Model.room!.room_title)" data-original-value="@(Model.room.room_title)" />
+                            <div class="invalid-feedback">請輸入刊登的房間標題!</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="floor" class="form-label">樓層</label>
+                            <input type="number" class="form-control" id="floor" name="floor" min="1" value="@(Model.room.floor)" data-original-value="@(Model.room.floor)" />
+                            <div class="invalid-feedback">請輸入房間的樓層數!</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="mb-3" for="room_type"> 房型 </label>
+                        <div class="mb-3">
+                            <select class="form-select" id="room_type" name="room_type" data-original-value="@(Model.room.room_type)">
+                                <option value="雙人套房" selected="@(Model.room.room_type == "雙人套房"? "selected" : null)">雙人套房</option>
+                                <option value="雙人雅房" selected="@(Model.room.room_type == "雙人雅房"? "selected" : null)">雙人雅房</option>
+                                <option value="三人套房" selected="@(Model.room.room_type == "三人套房"? "selected" : null)">三人套房</option>
+                                <option value="三人雅房" selected="@(Model.room.room_type == "三人雅房"? "selected" : null)">三人雅房</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="mb-3" for="bed_type"> 床型 </label>
+                        <div class="mb-3">
+                            <select class="form-select" id="bed_type" name="bed_type" data-original-value="@(Model.room.bed_type)">
+                                <option value="單人床" selected="@(Model.room.bed_type == "單人床"? "selected" : null)">單人床</option>
+                                <option value="雙人床" selected="@(Model.room.bed_type == "雙人床"? "selected" : null)">雙人床</option>
+                                <option value="上下舖" selected="@(Model.room.bed_type == "上下舖"? "selected" : null)">上下舖</option>
+                                <option value="地舖" selected="@(Model.room.bed_type == "地舖"? "selected" : null)">地舖</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="size" class="form-label">房間大小 / 坪</label>
+                            <input type="number" class="form-control" id="size" name="room_size" min="1" value="@(Model.room.room_size)" data-original-value="@(Model.room.room_size)" />
+                            <div class="invalid-feedback">請輸入房間約略大小坪數!</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="people" class="form-label">徵求人數</label>
+                            <input type="number" class="form-control" id="people" name="roommate_num" min="1" value="@(Model.room.roommate_num)" data-original-value="@(Model.room.roommate_num)" />
+                            <div class="invalid-feedback">請輸入徵求人數!</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="rent" class="form-label">租金 / 月</label>
+                            <input type="number" class="form-control" id="rent" name="rent" min="0" value="@(Model.room.rent)" data-original-value="@(Model.room.rent)" />
+                            <div class="invalid-feedback">請輸入每月租金金額!</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="deposit" class="form-label">押金</label>
+                            <input type="number" class="form-control" id="deposit" name="deposit" min="0" value="@(Model.room.deposit)" data-original-value="@(Model.room.deposit)" />
+                            <div class="invalid-feedback">請輸入押金金額!</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="mb-3" for="lease_type"> 租約型式 </label>
+                        <div class="mb-3">
+                            <select class="form-select" id="lease_type" name="lease_type" data-original-value="@(Model.room.lease_type)">
+                                <option value="一年一約" selected="@(Model.room.lease_type == "一年一約"? "selected" : null)">一年一約</option>
+                                <option value="半年一約" selected="@(Model.room.lease_type == "半年一約"? "selected" : null)">半年一約</option>
+                                <option value="其他" selected="@(Model.room.lease_type == "其他"? "selected" : null)">其他</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="mb-3" for="pay_type"> 租金繳交方式 </label>
+                        <div class="mb-3">
+                            <select class="form-select" id="pay_type" name="pay_type" data-original-value="@(Model.room.pay_type)">
+                                <option value="月繳" selected="@(Model.room.pay_type == "月繳"? "selected" : null)">月繳</option>
+                                <option value="年繳" selected="@(Model.room.pay_type == "年繳"? "selected" : null)">年繳</option>
+                                <option value="其他" selected="@(Model.room.pay_type == "其他"? "selected" : null)">其他</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="management_fee" class="mb-3">管理費</label>
+                            <input type="number" class="form-control" id="management_fee" name="management_fee" min="0" value="@(Model.room.management_fee)" data-original-value="@(Model.room.management_fee)" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="mb-3" for="prefer_jobtime"> 工作時間(班別) </label>
+                        <div class="mb-3">
+                            <select class="form-select" id="prefer_jobtime" name="prefer_jobtime" data-original-value="@(Model.room.prefer_jobtime)">
+                                <option value="不拘" selected="@(Model.room.prefer_jobtime == "不拘"? "selected" : null)">不拘</option>
+                                <option value="早" selected="@(Model.room.prefer_jobtime == "早"? "selected" : null)">早</option>
+                                <option value="中" selected="@(Model.room.prefer_jobtime == "中"? "selected" : null)">中</option>
+                                <option value="晚" selected="@(Model.room.prefer_jobtime == "晚"? "selected" : null)">晚</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <label for="address" class="form-label">地址</label>
+                <div class="row row-cols-1 row-cols-md-2">
+                    <div class="col">
+                        <select class="form-select mb-3" id="city" name="city" data-original-value="@(Model.room.city)">
+                            <option value="@(Model.room.city)"> @(Model.room.city) </option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select class="form-select mb-3" id="area" name="area" data-original-value="@(Model.room.area)">
+                            <option value="@(Model.room.area)"> @(Model.room.area) </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="address" name="address" value="@(Model.room.address)" data-original-value="@(Model.room.address)" />
+                    <div class="invalid-feedback">請輸入房間地址!(不包含縣市及區域)</div>
+                </div>
+                <div class="mb-3">
+                    <label for="expect" class="form-label">理想室友</label>
+                    <textarea class="form-control" id="expect" rows="4" cols="50" maxlength="200" placeholder="請輸入理想室友的條件，最多 200 字" name="roommate_description" data-original-value="@(Model.room.roommate_description)">@(Model.room.roommate_description)</textarea>
+                    <div class="invalid-feedback">請輸入欲找尋的室友條件!</div>
+                    <p class="text-muted text-end" id="charCount"></p>
+                </div>
+                <h3 class="mb-2">房間設備</h3>
+                <div class="d-flex flex-wrap">
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bed" name="bed" value="true" checked="@(Model.deviceList!.bed)" data-original-value="@(Model.deviceList.bed)" />
+                                <label class="form-check-label" for="bed" style="line-height: 1.5">床</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="shelf" name="wardrobe" value="true" checked="@(Model.deviceList.wardrobe)" data-original-value="@(Model.deviceList.wardrobe)" />
+                                <label class="form-check-label" for="shelf" style="line-height: 1.5">衣櫃</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="desk" name="room_table" value="true" checked="@(Model.deviceList.room_table)" data-original-value="@(Model.deviceList.room_table)" />
+                                <label class="form-check-label" for="desk" style="line-height: 1.5">桌子</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="chair" name="chair" value="true" checked="@(Model.deviceList.chair)" data-original-value="@(Model.deviceList.chair)" />
+                                <label class="form-check-label" for="chair" style="line-height: 1.5">椅子</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="kitchen" name="kitchen" value="true" checked="@(Model.deviceList.kitchen)" data-original-value="@(Model.deviceList.kitchen)" />
+                                <label class="form-check-label" for="kitchen" style="line-height: 1.5">廚房</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="private_washer" name="private_washer" value="true" checked="@(Model.deviceList.private_washer)" data-original-value="@(Model.deviceList.private_washer)" />
+                                <label class="form-check-label" for="private_washer" style="line-height: 1.5">洗衣機(獨立)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tv" name="tv" value="true" checked="@(Model.deviceList.tv)" data-original-value="@(Model.deviceList.tv)" />
+                                <label class="form-check-label" for="tv" style="line-height: 1.5">電視</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="wifi" name="wifi" value="true" checked="@(Model.deviceList.wifi)" data-original-value="@(Model.deviceList.wifi)" />
+                                <label class="form-check-label" for="wifi" style="line-height: 1.5">網路</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="balcony" name="balcony" value="true" checked="@(Model.deviceList.balcony)" data-original-value="@(Model.deviceList.balcony)" />
+                                <label class="form-check-label" for="balcony" style="line-height: 1.5">陽台</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="mb-2">環境公設</h3>
+                <div class="d-flex flex-wrap">
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="elevator" name="elevator" value="true" checked="@(Model.deviceList.elevator)" data-original-value="@(Model.deviceList.elevator)" />
+                                <label class="form-check-label" for="elevator" style="line-height: 1.5">電梯</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="monitor" name="monitor" value="true" checked="@(Model.deviceList.monitor)" data-original-value="@(Model.deviceList.monitor)" />
+                                <label class="form-check-label" for="monitor" style="line-height: 1.5">監視器</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="extinguisher" name="extinguisher" value="true" checked="@(Model.deviceList.extinguisher)" data-original-value="@(Model.deviceList.extinguisher)" />
+                                <label class="form-check-label" for="extinguisher" style="line-height: 1.5">滅火器</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="public_washer" name="public_washer" value="true" checked="@(Model.deviceList.public_washer)" data-original-value="@(Model.deviceList.public_washer)" />
+                                <label class="form-check-label" for="public_washer" style="line-height: 1.5">洗衣機(共用)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="trash_cart" name="trash_cart" value="true" checked="@(Model.deviceList.trash_cart)" data-original-value="@(Model.deviceList.trash_cart)" />
+                                <label class="form-check-label" for="trash_cart" style="line-height: 1.5">垃圾子母車</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="keeppet" name="keep_pet" value="true" checked="@(Model.deviceList.keep_pet)" data-original-value="@(Model.deviceList.keep_pet)" />
+                                <label class="form-check-label" for="keeppet">是否可養寵物</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="smoking" name="smoking" value="true" checked="@(Model.deviceList.smoking)" data-original-value="@(Model.deviceList.smoking)" />
+                                <label class="form-check-label" for="smoking">是否可抽菸</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <h3 class="text-center mb-3">房東資訊</h3>
+                <div class="col">
+                    <div class="mb-3">
+                        <p class="text-center text-danger">請於提供房東個人資訊前，確認已取得本人同意，並於下方上傳簽名後的同意書照片，謝謝。</p>
+                        @* <input class="form-check-input" type="checkbox" id="agreement" name="agreement" value="" checked="@(Model.landlord!.agreement)"/>
+                        <label class="form-check-label" for="agreement">確認提供房東個人資訊前，已取得本人同意，並於下方上傳同意書。</label> *@
+                    </div>
+                </div>
+                <div class="landlordinfo">
+                    <div class="row row-cols-1 row-cols-md-2 mb-3">
+                        <div class="col">
+                            <a href="~/同意聲明.pdf" id="download" download class="d-flex align-items-center">
+                                <label type="button" for="download" class="text-center py-5 w-100 mb-3 rounded d-flex flex-column" style="border: 1px dashed gray">
+                                    <span class="material-symbols-outlined mb-3" style="font-size: 50px">
+                                        file_save
+                                    </span>下載同意聲明檔
+                                </label>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <input type="file" accept="image/*" id="consentPhoto" name="consentPhoto" class="d-none" />
+                            <label type="button" for="consentPhoto" class="text-center py-5 w-100 mb-3 rounded " style="border: 1px dashed gray">
+                                <span class="material-symbols-outlined mb-3" style="font-size: 50px">
+                                    upload
+                                </span>
+                                <p class="text-gray">上傳同意聲明簽字圖片</p>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center px-3">
+                        <div class="img-wrapper w-100" id="img-wrapper">
+                            @if (Model.consentUrl != null)
+                            {
+                                <div class="position-relative">
+                                    <img src="@(Model.consentUrl)" alt="" class="object-cover consentPhoto w-100" />
+                                    <button type="button" class="btn btn-danger rounded-circle btn-delete" id="deleteConsent">
+                                        <i class="bi bi-x" style="font-size: 16px"></i>
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                @* <p class="text-center">如果沒上傳同意書照片，可以在這裡新增畫面要顯示的文字。</p> *@
+                            }
+                        </div>
+                    </div>
+                    <div class="row row-cols-1 row-cols-md-2">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">房東姓名</label>
+                                <input type="text" class="form-control " id="name" name="name" value="@(Model.landlord!.name)" data-original-value="@(Model.landlord.name)" />
+                                <div class="invalid-feedback">請輸入房東姓名!</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">房東電話</label>
+                                <input type="tel" class="form-control" id="phone" placeholder="09xxxxxxxx" name="phone" value="@(Model.landlord.phone)" data-original-value="@(Model.landlord.phone)" />
+                                <div class="invalid-feedback">請輸入房東電話，並確認格式正確!</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="genderWrapper" data-original-value="@(Model.landlord.gender)">
+                                <label>房東性別</label>
+                                <div class="mt-2">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="gender" id="male" value="男" checked="@(Model.landlord.gender == "男" ? "checked" : null)" />
+                                            <label class="form-check-label" for="male" style="line-height: 1.5">男</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="gender" id="female" value="女" checked="@(Model.landlord.gender == "女" ? "checked" : null)" />
+                                            <label class="form-check-label" for="female" style="line-height: 1.5">女</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="container">
+                    <h3 class="text-center">上傳房間圖片</h3>
+                    <p class="text-center text-danger mb-3">(上傳照片數量以三張為限)</p>
+                    <div class="roomPhotos row row-cols-1 row-cols-md-2 row-cols-lg-3 mb-3">
+                        @for (int i = Model.imageUrl.Count - 1; i > -1; i--)
+                        {
+                            if (Model.imageUrl[i] != null)
+                            {
+                                <div class="col mb-4" data-photo>
+                                    <div class="position-relative">
+                                        <img src="@(Model.imageUrl[i])" alt="" class="object-cover roomPhoto w-100" />
+                                        <button type="button" class="btn btn-danger rounded-circle btn-delete deletePhoto">
+                                            <i class="bi bi-x" style="font-size: 16px"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        <input type="file" accept="image/*" id="roomPhotos" name="roomPhotos" multiple="" class="d-none" />
+                        <label type="button" for="roomPhotos" class="text-center py-5 w-100 mb-3 rounded" id="uploadLabel" style="border: 1px dashed gray">
+                            <i class="fa fa-plus text-gray" aria-hidden="true" style="font-size: 50px"></i>
+                            <p class="text-gray">新增房間圖片</p>
+                        </label>
+                    </div>
+                </div>
+                <input type="hidden" name="roomId" id="roomId" value="@(Model.room.room_id)" data-original-value="@(Model.room.room_id)" />
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary px-5 py-3" onclick="location.reload()">
+                        還原
+                    </button>
+                    <button type="button" id="editButton" class="btn btn-primary px-5 py-3">
+                        修改
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="alert-container"></div>
+</section>
+
+@section Scripts {
+    <script>
+        // 更新字數 (目前的 與 偵測輸入)
+        let currentLength = $("#expect").text().length;
+        $("#charCount").text(`${currentLength}/200`);
+        $("#expect").on("input", function () {
+            $("#charCount").text(`${this.value.length}/200`);
+        });
+
+        // 縣市及區域選取
+        let taiwanData;
+        let city;
+        let areas;
+        axios.get("../taiwan.json").then((res) => {
+            taiwanData = res.data;
+            // $("#city").empty();
+            let cityStr = ``;
+            $.each(taiwanData, (i, val) => {
+                if (val.CityName != $("#city").val()) {
+                    cityStr += `<option value=${val.CityName}>${val.CityName}</option>`;
+                }
+            })
+            $("#city").append(cityStr);
+            let defaultAreaStr = ``;
+            areas = taiwanData.find((c) => c.CityName == $("#city").val()).AreaList;
+            $.each(areas, (i, val) => {
+                if (val.AreaName != $("#area").val()) {
+                    defaultAreaStr += `<option value=${val.AreaName}>${val.AreaName}</option>`;
+                }
+            })
+            $("#area").append(defaultAreaStr);
+            $("#city").on("change", function () {
+                city = this.value;
+                $("#area").empty();
+                let areaStr = "";
+                areas = taiwanData.find((c) => c.CityName == city).AreaList;
+                $.each(areas, (i, val) => {
+                    areaStr += `<option value=${val.AreaName}>${val.AreaName}</option>`;
+                })
+                $("#area").append(areaStr);
+
+            })
+        }).catch((err) => {
+            console.log(err);
+        })
+
+        $(document).ready(function () {
+            // 用來偵測是否有變更過表單內容
+            let isChanged = false;
+            // 存放同意書照片
+            let consent_photo = null;
+            let existing_consent = $(".consentPhoto").length > 0 ? $(".consentPhoto").attr("src") : null;
+
+            // 上傳同意書照片
+            $("#consentPhoto").on("change", function (e) {
+                isChanged = true;
+                consent_photo = e.target.files[0];
+                const reader = new FileReader();
+                reader.addEventListener("load", () => {
+                    const photo = reader.result;
+                    $("#img-wrapper").html(`
+                                        <div class="position-relative">
+                                            <img src="${photo}" class="w-100" style="height:250px"/>
+                                            <button type="button" class="btn btn-danger rounded-circle btn-delete" id="deleteConsent">
+                                                <i class="bi bi-x" style="font-size: 16px"></i>
+                                            </button>
+                                        </div>
+                                    `);
+                }, false);
+                if (consent_photo) {
+                    reader.readAsDataURL(consent_photo);
+                }
+            });
+            // 移除同意書照片
+            $(document).on("click", "#deleteConsent", function () {
+                isChanged = true;
+                $(this).closest(".position-relative").remove();
+                $("#consentPhoto").val("");
+                existing_consent = null;
+            });
+
+            const room_photos = [];             // 要存入DB的圖片
+            const existing_photos = [];         // DB現有傳回前端的圖片
+            const maxPhotos = 3;
+            // 取得目前頁面上已有的圖片數量，並更新 room_photos
+            $(".roomPhoto").each(function () {
+                const imageUrl = $(this).attr('src');
+                existing_photos.push(imageUrl);
+                // console.log($(this));
+            });
+            // console.log(existing_photos.length);
+            if (room_photos.length + existing_photos.length >= maxPhotos) {
+                $("#roomPhotos").prop("disabled", true);
+                $("#uploadLabel").addClass("disabled");
+            }
+            // 上傳房間照片
+            $("#roomPhotos").on("change", function (event) {
+                isChanged = true;
+                let newFiles = Array.from(event.target.files);
+
+                // 計算剩餘可上傳的張數，超過就切斷
+                let remaining = maxPhotos - (room_photos.length + existing_photos.length);
+                if (newFiles.length > remaining) {
+                    newFiles = newFiles.slice(0, remaining); // 取前幾個檔案以符合剩餘的可用位置
+                }
+
+                const uniqueFiles = newFiles.filter(file => {
+                    return !room_photos.some(existingFile => existingFile.name === file.name && existingFile.size === file.size);
+                });
+                uniqueFiles.forEach(file => room_photos.push(file));
+
+                $.each(uniqueFiles, function (index, file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const imageSrc = e.target.result;
+                        const imageDiv = $(`
+                                            <div class="col mb-4">
+                                                <div class="position-relative">
+                                                    <img src="${imageSrc}" alt="" class="object-cover roomPhoto w-100"/>
+                                                    <button type="button" class="btn btn-danger rounded-circle btn-delete deletePhoto" >
+                                                        <i class="bi bi-x" style="font-size: 16px"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `);
+
+                        $(".roomPhotos").prepend(imageDiv);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+
+                // 超過設定數量即禁用上傳
+                if (room_photos.length + existing_photos.length >= maxPhotos) {
+                    $("#roomPhotos").prop("disabled", true);
+                    $("#uploadLabel").addClass("disabled");
+                }
+
+                // 清除選取的檔案以便下次選取
+                $(this).val('');
+            });
+
+            // 刪除照片
+            $(document).on("click", ".deletePhoto", function () {
+                isChanged = true;
+                const index = $(this).parent().parent().index();
+
+                // 判斷要刪除的照片是來自舊有照片還是新上傳
+                if (index < existing_photos.length) {
+                    existing_photos.splice(index, 1);
+                } else {
+                    room_photos.splice(index - existing_photos.length, 1);
+                }
+
+                $(this).closest(".col").remove();
+                if (room_photos.length + existing_photos.length < maxPhotos) {
+                    $("#roomPhotos").prop("disabled", false);
+                    $("#uploadLabel").removeClass("disabled");
+                }
+            });
+
+            $("#phone").on("input", function () {
+                const regex = /^09\d{8}$/;
+                if (regex.test($(this).val())) {
+                    this.classList.remove("is-invalid")
+                } else {
+                    this.classList.add("is-invalid");
+                }
+            });
+
+            // 送出資料
+            $("#editButton").on("click", function (event) {
+                // 用來驗證目前輸入的欄位值是否為空
+                let isVerified = true;
+
+                const validationRules = {
+                    room_title: "required",
+                    floor: "required",
+                    room_size: "required",
+                    roommate_num: "required",
+                    rent: "required",
+                    deposit: "required",
+                    address: "required",
+                    roommate_description: "required",
+                    name: "required",
+                    phone: "required",
+                    gender: "required"
+                };
+
+                const formData = new FormData();
+
+                $("#editRoomForm").find('input, select, textarea').each(function () {
+                    const $field = $(this);
+                    const fieldName = $field.attr('name');
+                    const fieldType = $field.attr('type');
+                    let originalValue = $field.data('original-value');
+                    let currentValue;
+
+
+                    // 過濾掉不需要的欄位，例如圖片上傳
+                    if (["roomPhotos", "consentPhoto"].includes($field.attr('id'))) {
+                        return; // 跳過
+                    }
+
+                    // 處理 radio 按鈕
+                    if (fieldType === 'radio') {
+                        if (!$(this).is(':checked')) {
+                            return; // 跳過未選中的 radio
+                        }
+                        currentValue = $field.val();
+                        originalValue = $('.genderWrapper').data('original-value');
+                    }
+                    // 處理 checkbox
+                    else if (fieldType === 'checkbox') {
+                        currentValue = $(this).is(':checked'); // 取得勾選狀態
+                        // 存入DB再取出後會因為轉換問題導致原始值變成Ture or False，因此要另外轉換
+                        // (js的true or false會是小寫開頭)
+                        originalValue = (originalValue === 'True');
+                        // if (!validationRules[fieldName]) {
+                        //     return;
+                        // }
+                    }
+                    else {
+                        currentValue = $field.val();
+                    }
+
+                    // console.log(`原始值: ${originalValue}，目前值:${currentValue}`);
+
+                    // 若有 data-original-value，才進行比較
+                    if (typeof originalValue !== 'undefined' && originalValue != currentValue) {
+                        isChanged = true; // 表單有變更
+                    }
+
+                    if (validationRules[fieldName] === 'required' && (!currentValue || currentValue === "")) {
+                        $field.addClass("is-invalid");
+                        isVerified = false;
+                    } else {
+                        $field.removeClass("is-invalid");
+                    }
+
+                    // 特殊處理：例如管理費未填時自動設為 0
+                    if (fieldName === 'management_fee' && (currentValue === null || currentValue === "")) {
+                        $field.val(0); // 自動填值
+                        currentValue = 0;
+                    }
+
+                    formData.append(fieldName, currentValue);
+                    // console.log("現在的驗證結果：" + isVerified);
+                });
+
+                if (!isChanged) {
+                    $('#alert-container').load('/Member/Alert', {
+                        color: "danger",
+                        alertText: "請確認內容有變更過再按下送出，謝謝您。",
+                        show: true,
+                        time: 2000
+                    });
+                    return;
+                }
+
+                // 不管有無圖片都要加(新增 or 刪除都要能做)
+                formData.append("consentPhoto", consent_photo);
+                formData.append("existingConsent", existing_consent);
+
+                existing_photos.forEach((imageUrl, index) => {
+                    formData.append("existingPhotos", imageUrl);
+                });
+
+
+                // 如果表單內容沒變更過，按下修改時需進行阻擋
+
+
+                // 將 room_photos 中的圖片加入 formData
+                room_photos.forEach((file, index) => {
+                    formData.append("roomPhotos", file);
+                });
+                console.log(`送出前的驗證結果: ${isVerified}`);
+                if (isVerified) {
+                    $.ajax({
+                        url: "/Member/EditRoom",
+                        type: "PUT",
+                        data: formData,
+                        // 以FormData格式傳送資料，防止ajax將表單contentType設成預設(application/x-www-form-urlencoded; charset=UTF-8)
+                        contentType: false,
+                        // 防止FormData中的資料進行URL編碼。確保二進位不會被處理為字串，而是以原始格式傳送
+                        processData: false,
+                        success: function (response) {
+                            console.log("AJAX response:", response); // 確認回應內容
+
+                            // 無論結果先顯示出動畫提示窗
+                            $('#alert-container').load('/Member/Alert', {
+                                Color: response.color,
+                                AlertText: response.alertText,
+                                Show: response.show,
+                                Time: response.time
+                            });
+                            if (response.success) {
+                                // POST 成功，進行頁面跳轉
+                                setTimeout(() => {
+                                    window.location.href = "/Member/EditRoom";
+                                }, response.time);
+                            }
+                            console.log("資料傳送成功");
+                        },
+                        error: function (error) {
+                            console.log("上傳發生錯誤，內容: " + error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

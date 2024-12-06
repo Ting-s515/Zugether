@@ -1,0 +1,63 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+@model Zugether.DTO.RoomEditViewModel
+
+<div class="p-3 w-100">
+    @if (ViewBag.Message != null)
+    {
+        
+        <h2 class="text-center text-muted"> @ViewBag.Message </h2>
+        <a href="/Admin/Rooms" class="btn btn-primary">上一頁</a>
+    }
+    else
+    {
+        <h3 class="text-center">編輯 「@Model.room_title」 房間</h3>
+        <form action="/Admin/RoomEdit" method="post">
+            <p>房間編號 :  @Model.room_id</p>
+            <input type="hidden" id="room_id"
+                   name="room_id" value="@Model.room_id" />
+            <p>房間標題 :  @Model.room_title</p>
+            <p>刊登日期 :  @Model.post_date</p>
+            
+            <div class="d-flex">
+                <label class="form-label me-2">勾選上架 : </label>
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox"
+                           id="isEnabled" name="isEnabled" value="@(Model.isEnabled)"
+                    @(Model.isEnabled ?? false ? "checked" : "") />
+                    <span id="statusText" class="@((Model.isEnabled ?? false) ? "text-success" : "text-danger")">@((Model.isEnabled ?? false) ? "上架" : "未上架")</span>
+                </label>
+            </div>
+            @if( Model.consentImage == null)
+            {
+                <p>尚無合約照片</p>
+            }
+            else
+            {
+                 <img src="@ViewBag.consentImage" class="w-50" />
+            }
+           @*  <p>@ViewBag.consentImage</p> *@
+           
+            <div class="form-group">
+                <input type="submit" value="確定" class="btn btn-success" /> |
+                <a href="/Admin/Rooms" class="btn btn-outline-danger">取消</a>
+            </div>
+        </form>
+    }
+
+</div>
+
+<script>
+    $("#isEnabled").on("change", function () {
+        if ($(this).prop("checked")) {
+            $(this).val(true)
+            $("#statusText").text("上架").removeClass("text-danger").addClass("text-success");
+        } else {
+            $(this).val(false)
+            $("#statusText").text("未上架").removeClass("text-success").addClass("text-danger");
+        }
+    });
+</script>

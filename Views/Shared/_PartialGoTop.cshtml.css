@@ -1,0 +1,12 @@
+﻿.goTop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    color: white;
+    padding: 8px;
+    font-size: 1.5rem;
+    z-index: 999;
+    transition: background-color 0.3s;
+    width: 48px;
+    height: 48px;
+}

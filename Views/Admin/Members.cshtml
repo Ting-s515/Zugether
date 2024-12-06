@@ -1,0 +1,59 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml"; ;
+}
+
+@model List<Member>
+
+
+<div class="p-3 w-100">
+    <h3 class="text-center">會員列表</h3>
+    <hr />
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col" class="text-center">
+                    <a href="?sortOrder=@ViewBag.SortBymId" class="btn d-flex align-items-center justify-content-center">
+                        會員編號
+                        @if (ViewBag.CurrentSort == "mId_asc")
+                        {
+                            <i class="fa-solid fa-sort-up ms-3"></i>
+                        }
+                        else if (ViewBag.CurrentSort == "mId_desc")
+                        {
+                            <i class="fa-solid fa-sort-down ms-3"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-sort ms-3"></i>
+                        }
+                    </a>
+                </th>
+                <th scope="col" class="text-center">email</th>
+                <th scope="col" class="text-center">姓名</th>
+                <th scope="col" class="text-center">性別</th>
+                <th scope="col" class="text-center">聯絡方式</th>
+                @* <th scope="col" class="text-center">註冊日期</th> *@
+                <th scope="col" class="text-center">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model)
+            {
+                <tr >
+                    <td class="text-center">@m.member_id</td>
+                    <td class="text-center">@m.email</td>
+                    <td class="text-center">@m.name</td>
+                    <td class="text-center">@m.gender</td>
+                    <td class="text-center">@m.phone</td>
+                    <td class="text-end">
+                        <a href="/Admin/MemberEdit/@m.member_id" class="btn btn-success btn-sm">編輯</a>
+                        <a href="/Admin/MemberDelete/@m.member_id" class="btn btn-outline-danger btn-sm">刪除</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+

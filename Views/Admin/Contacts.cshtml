@@ -1,0 +1,57 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml"; ;
+}
+
+@model List<Contact_us>
+
+
+<div class="p-3 w-100">
+    <h3 class="text-center">聯絡我們列表</h3>
+    <hr />
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col" class="text-center">
+                    <a href="?sortOrder=@ViewBag.SortBycId" class="btn d-flex align-items-center justify-content-center">
+                        編號
+                        @if (ViewBag.CurrentSort == "cId_asc")
+                        {
+                            <i class="fa-solid fa-sort-up ms-3"></i>
+                        }
+                        else if (ViewBag.CurrentSort == "cId_desc")
+                        {
+                            <i class="fa-solid fa-sort-down ms-3"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-sort ms-3"></i>
+                        }
+                    </a>
+                </th>
+                <th scope="col" class="text-center">標題</th>
+                <th scope="col" class="text-center">email</th>
+                <th scope="col" class="text-center">姓名</th>
+                <th scope="col" class="text-center">聯絡方式</th>
+                <th scope="col" class="text-center">建立日期</th>
+                <th scope="col" class="text-center">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td class="text-center">@c.contact_id</td>
+                    <td class="text-center">@c.title</td>
+                    <td class="text-center">@c.email</td>
+                    <td class="text-center">@c.name</td>
+                    <td class="text-center">@c.phone</td>
+                    <td class="text-center">@c.create_at</td>
+                    <td class="text-end">
+                        <a href="/Admin/ContactView/@c.contact_id" class="btn btn-success btn-sm">檢視</a>
+                        <a href="/Admin/ContactDelete/@c.contact_id" class="btn btn-outline-danger btn-sm">刪除</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

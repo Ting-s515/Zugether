@@ -1,0 +1,123 @@
+﻿@model Member
+
+@{
+    bool show = ViewBag.show ?? false;
+    string color = ViewBag.color ?? "success"; // 預設顏色
+    string message = ViewBag.message ?? ""; // 預設訊息
+}
+
+@if (ViewBag.show)
+{
+    @await Html.PartialAsync("_PartialAlert", new PartialAlert
+{
+    Color = color,
+    AlertText = message,
+    Show = show,
+    Time = 2000
+})
+}
+
+<section class="memberLayout container py-5">
+
+    <div class="d-flex flex-column flex-md-row">
+        @await Html.PartialAsync("_PartialMemberListGroup")
+        <div class="w-100  ps-md-5">
+            @await Html.PartialAsync("_PartialPageTitle", "修改會員資料")
+            <form action="EditInfo" method="post" enctype="multipart/form-data">
+                <div class="avatar d-flex justify-content-center mb-3">
+                    <input type="file" accept="image/*" id="avatar" name="avatar" class="d-none" />
+                    <figure class="avatar-figure">
+                        @if (Model.avatar == null)
+                        {
+                            <img src="~/images//peopleImg.png" alt="" class="rounded-circle object-cover w-100 h-100" id="avatarImg" />
+                        }
+                        else
+                        {
+                            <img src="@ViewBag.AvatarImage" alt="" class="rounded-circle object-cover w-100 h-100" id="avatarImg" />
+                        }
+
+                        <figure class="avatar-figcaption text-center">
+                            <label type="button" for="avatar" class="w-100 h-100 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-arrow-circle-up" aria-hidden="true" style="font-size:100px; color:white"></i>
+                            </label>
+                        </figure>
+                    </figure>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">姓名</label>
+                    <input type="text" class="form-control" id="name" name="name" value=@Model.name>
+                </div>
+                <div class="mb-3">
+                    <label for="nickName" class="form-label">暱稱</label>
+                    <input type="text" class="form-control" id="nickName" name="nickname" value=@Model.nickname>
+                </div>
+                <div class="mb-3">
+                    <label for="birth" class="form-label">出生日期</label>
+                    <input type="text" class="form-control" id="birth" name="birthday" value=@Model.birthday readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="gender" class="form-label">性別</label>
+                    <input type="text" class="form-control" id="gender" name="gender" value="@(Model.gender == "男"?"男":"女")" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="job" class="form-label">
+                        身份
+                    </label>
+                    <select id="job" name="job" class="form-select">
+                        <option nane="worker" value="上班族" selected="@(Model.job == "上班族"?true:false)">上班族</option>
+                        <option name="student" value="學生" selected="@(Model.job == "學生"?true:false)">學生</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">電話</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" value=@Model.phone>
+                </div>
+                <div class="mb-3">
+                    <label for="jobtime" class="form-label">
+                        上課/工作作息時間
+                    </label>
+                    <select id="jobtime" name="jobtime" class="form-select">
+                        <option name="morning" value="早班" selected="@(Model.jobtime == "早班"?true:false)">早班</option>
+                        <option name="afternoon" value="午班" selected="@(Model.jobtime == "午班"?true:false)">中班</option>
+                        <option name="evening" value="晚班" selected="@(Model.jobtime == "晚班"?true:false)">晚班</option>
+                        <option name="nofixed" value="不固定" selected="@(Model.jobtime == "不固定"?true:false)">不固定</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="intro" class="form-label">自我介紹</label>
+                    <textarea class="form-control" id="intro" name="introduce" rows="4" cols="50" maxlength="200">@Model.introduce</textarea>
+                    <p class="text-muted text-end" id="charCount"></p>
+                </div>
+                <div class="text-center ">
+                    <button type="submit" class="btn btn-primary px-5 py-3">修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+
+@section Scripts {
+    <script>
+        $("#avatar").on("change", function (e) {
+            $("#avatarImg").attr("src", "");
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.addEventListener("load", () => {
+                const photo = reader.result;
+                $("#avatarImg").attr("src", photo);
+            }, false);
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        })
+
+        let length = $("#intro").text().length
+        $("#charCount").text(`${length}/200`)
+        $("#intro").on("input", function () {
+            $(this).text($(this).val());
+            length = $(this).text().length;
+            $("#charCount").text(`${length}/200`)
+        })
+    </script>
+}

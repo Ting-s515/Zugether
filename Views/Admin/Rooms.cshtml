@@ -1,0 +1,73 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml"; ;
+}
+
+@model List<Room>
+
+
+<div class="p-3 w-100">
+    <h3 class="text-center">房間列表</h3>
+    <hr />
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">
+                    <a href="?sortOrder=@ViewBag.SortByRoomId" class="btn d-flex align-items-center justify-content-center">
+                        房間編號
+                        @if (ViewBag.CurrentSort == "roomId_asc")
+                        {
+                            <i class="fa-solid fa-sort-up ms-3"></i>
+                        }
+                        else if (ViewBag.CurrentSort == "roomId_desc")
+                        {
+                            <i class="fa-solid fa-sort-down ms-3"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-sort ms-3"></i>
+                        }
+                        
+                    </a>
+                </th>
+                <th scope="col" class="text-center">房間標題</th>
+                <th scope="col" class="text-center">刊登日期</th>
+                <th scope="col">
+                <a href="?sortOrder=@ViewBag.SortByEnabled" class="btn d-flex align-items-center justify-content-center">
+                    狀態
+                    @if (ViewBag.CurrentSort == "enabled_asc")
+                    {
+                        <i class="fa-solid fa-sort-up ms-3"></i>
+                    }
+                    else if (ViewBag.CurrentSort == "enabled_desc")
+                    {
+                        <i class="fa-solid fa-sort-down ms-3"></i>
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-sort ms-3"></i>
+                    }
+                </a>
+                </th>
+                <th scope="col" class="text-center">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr >
+                    <td class="text-center">@r.room_id</td>
+                    <td class="text-center">@r.room_title</td>
+                    <td class="text-center">@r.post_date</td>
+                    <td class="text-center @((r.isEnabled ?? false) ? "text-success" : "text-danger")">@((r.isEnabled ?? false) ? "上架" : "未上架")</td>
+                    <td class="text-end">
+                        <a href="/Admin/RoomEdit/@r.room_id" class="btn btn-success btn-sm">編輯</a>
+                        <a href="/Admin/RoomDelete/@r.room_id" class="btn btn-outline-danger btn-sm">刪除</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+

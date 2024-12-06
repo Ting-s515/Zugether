@@ -1,0 +1,21 @@
+﻿@model PartialLoading
+@{
+    var isLoading = Model.IsLoading;
+    var time = Model.Time;
+}
+
+<div class="position-fixed top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center @(isLoading ? "d-flex":"d-none")"
+     id="loading"
+     style="background:rgba(0,0,0,0.5) ; z-index: 1000; backdrop-filter: blur(3px);">
+    <div class="spinner-border text-secondary" role="status" style="width: 5rem; height: 5rem;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<script>
+    setTimeout(() => {
+        $("#loading").removeClass("d-flex");
+        $("#loading").addClass('d-none');
+    }, @time);
+
+</script>

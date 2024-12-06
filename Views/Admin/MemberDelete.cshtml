@@ -1,0 +1,25 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model Member
+
+<div class="p-3 w-100">
+    <h3 class="text-center">刪除 「@Model.member_id」 會員</h3>
+    <p>會員編號 :  @Model.member_id</p>
+    <p>會員 emial : @Model.email</p>
+    <p>會員姓名 :  @Model.name</p>
+    <p>會員暱稱 :  @Model.nickname</p>
+    <p>職業 :  @Model.job</p>
+    <p>聯絡方式 :  @Model.phone</p>
+    <p>出生日期 :  @Model.birthday<p>
+    <p>性別 :  @Model.gender</p>
+
+
+    <form action="/Admin/ConfirmMemberDelete" method="post" class="mt-3">
+        <input type="hidden" id="member_id" name="member_id"
+               value="@Model.member_id" />
+        <input type="submit" value="刪除" class="btn btn-danger " />
+        <a href="/Admin/Members" class="btn btn-outline-dark">取消</a>
+    </form>
+</div> 

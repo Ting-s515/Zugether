@@ -1,0 +1,30 @@
+﻿
+@model Zugether.DTO.ArticleDTO.ArticleViewModel
+
+<div class="container py-3">
+	<div class="mb-3">
+		<a href="@Url.Action("Index", "Article")" class="btn btn-primary">←上一頁</a>
+	</div>
+	@* <h1 class="article-title">@Model.Title</h1> *@
+	<h1 class="title">@Model.Title</h1>
+	<p class="article-date">發布時間：<strong>@Model.Create_at</strong></p>
+	<div class="article-image">
+		<img src="@ViewBag.articleImage" alt="@Model.Title" class="w-100" style="height:400px" />
+	</div>
+
+
+	@if (Model.Content != null && Model.Content.Any())
+	{
+		<div class="article-text">
+			@* @foreach (var paragraph in Model.Content)
+			{
+				<p>@Html.Raw(paragraph)</p>
+			} *@
+			@Html.Raw(Model.Content)
+		</div>
+	}
+	else
+	{
+		<p>此文章沒有內容。</p>
+	}
+</div>

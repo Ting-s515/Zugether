@@ -1,0 +1,132 @@
+﻿.swiper {
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 25px;
+}
+
+
+.swiper-slide {
+    background-position: center;
+    background-size: cover;
+    width: 300px;
+    height: 300px;
+}
+
+
+
+.articles .mySwiper {
+    /*  額外新增-讓內容物不要那麼大 */
+    height: 450px;
+    width: 80%;
+    padding: 0;
+}
+
+.swiper-wrapper {
+    box-sizing: initial;
+    display: flex;
+    height: 100%;
+    position: relative;
+    transition-property: transform;
+    transition-timing-function: ease;
+    transition-timing-function: var(--swiper-wrapper-transition-timing-function, initial);
+    width: 100%;
+    z-index: 1;
+}
+
+/*前後變成黑白*/
+.swiper-slide-next,
+.swiper-slide-prev {
+    filter: grayscale(1);
+}
+
+
+.articles .swiper-slide {
+    /* 額外新增-使照片至中 */
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    overflow: hidden; /* 剪裁內容，防止陰影溢出 */
+    border-radius: 10px; /* 確保邊角也包含在剪裁範圍內 */
+}
+
+
+
+.swiper-slide img {
+    display: block;
+    width: 100%;
+}
+
+/*.c-uniform-height {
+    height: 70px;*/ /* 設定固定高度 */
+    /*display: flex;
+    align-items: center;*/ /* 垂直置中 */
+/*}*/
+
+h5 .card-title {
+    margin: 0;
+}
+
+a:hover {
+    color: black; /* 在 hover 狀態時保持原本顏色 */
+}
+
+.swiper-pagination {
+    position: relative;
+    margin-top: 25px;
+}
+
+/*調整中*/
+@media (max-width: 768px) {
+    /*下面滑動的位置拿掉*/
+    .swiper-pagination {
+        display: none; /* 隱藏 */
+    }
+
+
+    .swiper {
+        height: 500px; /* 根據需要調整高度 */
+        padding: 0 0 0 4px; /* 取消內邊距以減少空白 */
+    }
+
+
+
+    .swiper-slide {
+        width: 100%; /* 使滑動內容佔滿整個可用空間 */
+        display: flex;
+        justify-content: center; /* 置中對齊內容 */
+    }
+
+    .swiper-slide-next,
+    .swiper-slide-prev {
+        transform: scale(0.8); /* 調整為 80% 的大小 */
+        opacity: 0.5; /* 調整透明度用來突出中間圖片 */
+    }
+
+    .swiper-slide {
+        /* 確保中間的滑動內容物在畫面中央 */
+        transform: scale(1); /* 確保中間的滑動內容物保持原始大小 */
+        z-index: 1; /* 確保中間的滑動內容物位於上層 */
+    }
+}
+
+/* 視窗寬度介於 768px 到 1279px */
+@media (min-width: 768px) and (max-width: 1279px) {
+    .swiper-pagination {
+        position: relative;
+        margin-top: 20px;
+    }
+}
+/* 視窗寬度大於等於 1280px */
+@media (min-width: 1280px) {
+    .swiper-pagination {
+        position: relative;
+        margin-top: 50px;
+    }
+}
+/* 我的電腦最大是這樣 */
+@media (min-width: 1300px) {
+    .swiper-pagination {
+        position: relative;
+        margin-top: 80px;
+    }
+}

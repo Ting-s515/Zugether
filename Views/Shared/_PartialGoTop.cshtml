@@ -1,0 +1,21 @@
+﻿<buttom type="button" class="btn bg-secondary rounded-circle goTop">
+    <i class="fa-solid fa-caret-up"></i>
+</buttom>
+
+<script>
+	$(window).scroll(function () {
+		if ($(this).scrollTop() > 100) {
+			$('.goTop').fadeIn();
+		} else {
+			$('.goTop').fadeOut();
+		}
+	});
+
+	$('.goTop').click(function (e) {
+		e.preventDefault();
+		window.scrollTo({
+			top: 0,
+			behavior: 'smooth'
+		})
+	});
+</script>

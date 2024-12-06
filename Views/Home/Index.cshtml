@@ -1,0 +1,124 @@
+﻿@{
+	ViewData["Title"] = "Home Page";
+	bool isLogin = ViewBag.isLogin ?? false;
+}
+@using Newtonsoft.Json;
+
+@await Html.PartialAsync("_PartialLoading", new PartialLoading
+{
+	IsLoading = false
+})
+
+
+<section class="homePage">
+
+	@await Html.PartialAsync("_PartialSearch")
+	@await Html.PartialAsync("_PartialGoTop")
+
+	@* 輪播 *@
+	<div class="swiper mySwiper">
+		<div class="swiper-wrapper">
+			<div class="swiper-slide">
+				<img src="~/images/banner.jpg" class="w-100" style="height:500px" alt="banner image" />
+			</div>
+			<div class="swiper-slide">
+				<img src="~/images/banner.jpg" class="w-100" style="height:500px" alt="banner image" />
+			</div>
+		</div>
+		<div class="swiper-button-next"></div>
+		<div class="swiper-button-prev"></div>
+	</div>
+
+	<!-- 廣告 -->
+	<section class="py-5 ad">
+		<div class="container">
+			<div class="row row-cols-1 row-cols-md-2 gy-3">
+				<div class="col">
+					<div class="d-flex flex-column align-items-center justify-content-center h-100">
+						<h1>合租室友及房源</h1>
+						<h3>更低租金、更大空間、生活更舒適</h3>
+						<p>你可以搜尋合適的室友及房間</p>
+					</div>
+				</div>
+				<div class="col">
+					<img src="~/images/friends.jpg" alt="" class="w-100 rounded">
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- 好處 -->
+	<section class="benefit bg-primary py-5">
+		<div class="container">
+			<h1 class="text-center mb-5 text-white">合租好處</h1>
+			<div class="row row-cols-1 row-cols-md-2 g-4">
+				<div class="col">
+					<div class="card position-relative p-4 text-white bg-primary border-white h-100">
+						<h3 class="position-absolute translate-middle-y top-0 ms-1 bg-primary px-2 mb-3">01</h3>
+						<h2><i class="bi bi-coin me-3 "></i>減少房租壓力</h2>
+						<p>透過合租，你可以與室友共同分擔租金，節省租屋成本。</p>
+					</div>
+				</div>
+				<div class="col">
+					<div class="card position-relative p-4 text-white bg-primary border-white h-100">
+						<h3 class="position-absolute translate-middle-y top-0 ms-1 bg-primary px-2 mb-3">02</h3>
+						<h2><i class="bi bi-arrows-angle-expand me-3 "></i>更大更舒適的空間</h2>
+						<p>以相對合理的費用享受更寬敞、舒適的居住環境，也能享受更多的個人和公共空間。</p>
+					</div>
+				</div>
+				<div class="col">
+					<div class="card position-relative p-4 text-white bg-primary border-white h-100">
+						<h3 class="position-absolute translate-middle-y top-0 ms-1 bg-primary px-2 mb-3">03</h3>
+						<h2><i class="bi bi-person-plus me-3 "></i>豐富您的生活</h2>
+						<p>與室友一同生活，相互幫忙，分享彼此生活經歷，您的生活將會更加豐富。</p>
+					</div>
+				</div>
+				<div class="col">
+					<div class="card position-relative p-4 text-white bg-primary border-white h-100">
+						<h3 class="position-absolute translate-middle-y top-0 ms-1 bg-primary px-2 mb-3">04</h3>
+						<h2><i class="bi bi-book me-3 "></i>學習新技能</h2>
+						<p>與來自不同背景的室友同住，可以學習到新的文化或技能，增長見識。</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+</section>
+<div id="alert-container"></div>
+<script>
+	var swiper = new Swiper(".mySwiper", {
+		loop: true,
+		autoplay: {
+			delay: 2500,
+			disableOnInteraction: false,
+		},
+		navigation: {
+			nextEl: ".swiper-button-next",
+			prevEl: ".swiper-button-prev",
+		},
+	});
+	$(function () {
+		//提取 HttpContext.Session.GetString("isLogin")
+		var isLogin = @JsonConvert.SerializeObject(ViewContext.HttpContext.Session.GetString("isLogin") == "true");
+		var memberName, memberEmail, memberID;
+		if (isLogin && !sessionStorage.getItem("showAlert", "true")) {
+			showAlert();
+			memberName = @Html.Raw(JsonConvert.SerializeObject(ViewBag.memberName));
+			memberID = @Html.Raw(JsonConvert.SerializeObject(ViewBag.memberID));
+			memberEmail = @Html.Raw(JsonConvert.SerializeObject(ViewBag.memberEmail));
+			sessionStorage.setItem("showAlert", "true");
+			sessionStorage.setItem("memberID", memberID);
+			sessionStorage.setItem("memberName", memberName);
+			sessionStorage.setItem("memberEmail", memberEmail);
+		}
+		function showAlert() {
+			$('#alert-container').load('/Home/Alert', {
+				Color: 'success',
+				AlertText: '登入成功!!',
+				Show: true,
+				Time: 1000
+			});
+		}
+	});
+</script>

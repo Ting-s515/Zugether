@@ -1,0 +1,147 @@
+﻿@{
+    bool isLoading = ViewBag.isLoading ?? false;
+    int time = ViewBag.Time ?? 0;
+}
+
+@await Html.PartialAsync("_PartialLoading", new PartialLoading
+{
+    IsLoading = isLoading,
+    Time = time
+})
+<div class="offcanvas offcanvas-start" tabindex="-1" id="searchSidebar" aria-labelledby="offcanvasWithBackdropLabel">
+    <button class="btn btn-primary btn-search position-absolute text-secondary border border-secondary " type="button" data-bs-toggle="offcanvas" data-bs-target="#searchSidebar" aria-controls="searchSidebar">搜尋房源</button>
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasWithBackdropLabel">條件篩選</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body px-5">
+       <form asp-action="SearchRoom" asp-controller="Search" method="post" id="searchForm">
+            <div class="mb-3">
+                <label class="mb-3"> 請選擇位置</label>
+                    <select class="form-select mb-3" id="cityList" name="cityList">
+                    
+                    </select>
+                <div class="mb-3">
+                    <select class="form-select" id="cityAreaList" name="cityAreaList">
+                        <option value="all">所有區域</option>`
+                    </select>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="position-relative ">
+                    <label class="form-label mb-3">NT$ <span class="rentNum text-danger"> 15000 </span> 以內/月(未含水電及管理費)</label>
+                    <input type="range" class="range w-100" name="rent" id="rentRange" min="1000" max="30000" step="1000" value="15000"/>
+                    <div class="position-absolute translate-middle-x" id="num" style="left:calc((15000 - 1000)/(30000 - 1000) * 100%)">15000</div>
+                </div> 
+            </div>
+            <div class="mb-3">
+                <label class="mb-3"> 請選擇房型</label>
+                <select class="form-select" id="roomType" name="roomType">
+                    <option value="all">所有房型</option>
+                    <option value="雙人雅房">雙人雅房</option>
+                    <option value="雙人套房">雙人套房</option>
+                    <option value="三人雅房">三人雅房</option>
+                    <option value="三人套房">三人套房</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="mb-3">希望室友工作時間</label>
+                <select class="form-select" id="preferJobTime" name="preferJobTime">
+                    <option value="all">不拘</option>
+                    <option value="早">早班</option>
+                    <option value="中">中班</option>
+                    <option value="晚">晚班</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="searchLabel">
+                    <input type="checkbox" name="pet" value="true" class="searchCheckbox form-check-input"/>
+                    <span>可養寵物</span>
+                </label>
+                <label class="searchLabel">
+                    <input type="checkbox" name="smoking" value="true" class="searchCheckbox form-check-input"/>
+                    <span>可抽菸</span>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" onclick="search()">搜尋</button>
+        </form>
+    </div>
+</div>
+@*動畫Loading*@
+<div id="loading-container"></div>
+<script>
+    $(function(){
+    let taiwanData,city,areas;
+     axios.get("../taiwan.json").then((res) => {
+        taiwanData = res.data;
+        $("#cityList").empty();
+        let cityStr = `<option value="all">所有縣市</option>`;
+
+        $.each(taiwanData, (i, val) => {
+            cityStr += `<option value=${val.CityName}>${val.CityName}</option>`
+        })
+         $("#cityList").append(cityStr);
+
+        $("#cityList").on("change", function () {
+            city = this.value;
+            $("#cityAreaList").empty();
+            let areaStr = `<option value="all">所有區域</option>`;
+            if (city == "all") {
+               $("#cityAreaList").append(areaStr);
+            } else {
+                areas = taiwanData.find((c) => c.CityName == city).AreaList;
+                $.each(areas, (i, val) => {
+                    areaStr += `<option value=${val.AreaName}>${val.AreaName}</option>`
+                })
+               $("#cityAreaList").append(areaStr);
+            }
+        })
+    }).catch((err) => {
+        console.log(err)
+    })
+
+    $("#rentRange").on("input", function (){
+        let val = this.value;
+        let max = this.max;
+        let min = this.min;
+        let leftPosition = ((val - min) / (max - min)) * 100;
+        $("#num").css("left", `${leftPosition}%`);
+        $("#num").text(val);
+        $(".rentNum").text(val);
+    })
+
+    function search() {
+        // 手動關閉 Offcanvas
+        const offcanvasElement = document.getElementById("searchSidebar");
+        const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+        offcanvasInstance.hide();
+    } 
+     $('#searchForm').submit(function (e) {
+            e.preventDefault();
+            // 取得表單
+            // const cityList = $('#cityList').val();
+            // const cityAreaList = $('#cityAreaList').val();
+            // const roomType = $('#roomType').val();
+            // const rentRange = $('#rentRange').val();
+            // const preferJobTime = $('#preferJobTime').val();
+            // console.log("cityList:", cityList);
+            // console.log("cityAreaList:", cityAreaList);
+            // console.log("roomType:", roomType);
+            // console.log("rentRange", rentRange);
+            // console.log("preferJobTime", preferJobTime);
+            // var petChecked = $("input[name='pet']").is(":checked");
+            // console.log("可養寵物被勾選:", petChecked);
+            // var smokingChecked = $("input[name='smoking']").is(":checked");
+            // console.log("可抽菸被勾選:", smokingChecked);
+            // alert("確認資料");
+            this.submit();
+            // 載入Loading
+            $('#loading-container').load('/partialView/Loading', {
+                IsLoading: true,
+                Time:2000
+            });
+        });
+    });
+    
+</script>
+

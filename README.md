@@ -13,6 +13,7 @@
         <li><a href="#project-description">專案說明</a></li>
         <li><a href="#responsible-for-project">我負責的項目</a></li>
         <li><a href="#technology-application">技術應用</a></li>
+        <li><a href="#database-design">資料庫設計</a></li>
         <li><a href="#function-description">功能說明</a></li>
     </ul>
     <h2 id="project-description">專案說明 : </h2>
@@ -58,7 +59,9 @@
             <li>Animate.css</li>
         </ul>
     </ul>
-   <h2 id="function-description">功能說明 :</h2>
+    <h2 id="database-design">資料庫設計 : </h2>
+    <img src="https://i.imgur.com/18V86Ln.png" alt="資料庫設計圖" style="max-width: 100%; height: auto;">
+    <h2 id="function-description">功能說明 :</h2>
     <ul>
         <li>
             房源搜尋：用戶可以輕鬆發布房源，並透過多重篩選功能快速找到符合需求的合租物件。

@@ -30,8 +30,9 @@
             <div class="mb-4">
                 <div class="position-relative ">
                     <label class="form-label mb-3">NT$ <span class="rentNum text-danger"> 15000 </span> 以內/月(未含水電及管理費)</label>
-                    <input type="range" class="range w-100" name="rent" id="rentRange" min="1000" max="30000" step="1000" value="15000"/>
+                    <input type="range" class="range w-100 my-2" name="rent" id="rentRange" min="1000" max="30000" step="1000" value="15000"/>
                     <div class="position-absolute translate-middle-x" id="num" style="left:calc((15000 - 1000)/(30000 - 1000) * 100%)">15000</div>
+                    @* 計算數字位置在總範圍的比例 *@
                 </div> 
             </div>
             <div class="mb-3">

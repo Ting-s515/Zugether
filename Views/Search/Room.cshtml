@@ -34,10 +34,10 @@
 		font-weight: bold;
 	}
 
-		.member-name:hover {
-			text-decoration: underline;
-			cursor: pointer;
-		}
+	.member-name:hover {
+		text-decoration: underline;
+		cursor: pointer;
+	}
 	/*回覆者姓名*/
 	.reply-member-name {
 		color: red;
@@ -61,7 +61,7 @@
 	#user-shot:hover {
 		cursor: pointer;
 		/* transform: scale(2) translateX(10px) translateY(10px);
-									/* 添加平滑過渡效果 */
+										/* 添加平滑過渡效果 */
 		/* transition: transform 0.3s ease; */
 	}
 	/* 訊息區 */
@@ -78,22 +78,22 @@
 		color: #BB5500;
 	}
 
-		.reply:hover {
-			color: blue;
-			text-decoration: underline;
-			/* 變更游標為手指 */
-			cursor: pointer;
-		}
+	.reply:hover {
+		color: blue;
+		text-decoration: underline;
+		/* 變更游標為手指 */
+		cursor: pointer;
+	}
 
 	.edit-text {
 		color: #BB5500;
 	}
 
-		.edit-text:hover {
-			color: blue;
-			text-decoration: underline;
-			cursor: pointer;
-		}
+	.edit-text:hover {
+		color: blue;
+		text-decoration: underline;
+		cursor: pointer;
+	}
 
 	/* 訊息內容，允許換行 */
 	.message-content {
@@ -119,18 +119,18 @@
 		transition: all 0.3s ease;
 	}
 
-		.button-style:hover {
-			background-color: #D9B300 !important;
-			transform: translateY(-2px);
-		}
+	.button-style:hover {
+		background-color: #D9B300 !important;
+		transform: translateY(-2px);
+	}
 
 	#send {
 		width: 80px;
 	}
 
-		#send:hover {
-			background-color: #D9B300 !important;
-		}
+	#send:hover {
+		background-color: #D9B300 !important;
+	}
 	/* 發布者資訊 */
 	.promulgator-title {
 		font-weight: bold;
@@ -147,6 +147,7 @@
 			</button>
 		</div>
 		<!-- 圖片幻燈片 -->
+		@* 防止空集合物件 *@
 		@if (Model.roomImages != null && Model.roomImages.Any())
 		{
 			<div class="carousel-container">
@@ -158,7 +159,7 @@
 							if (image.room_photo != null)
 							{
 								string imageBase64 = Convert.ToBase64String(image.room_photo);
-								// 從資料庫讀取 photo類型
+								// 從資料庫讀取 photo格式
 								string imageSrc = $"data:{image.photo_type};base64,{imageBase64}";
 								<div class="carousel-item @(i == 0 ? "active" : "")">
 									<img src="@imageSrc" class="d-block w-100" alt="Room image" loading="lazy">
@@ -283,7 +284,6 @@
 				<h3>房間設備</h3>
 				<!-- flex-wrap自動換行 -->
 				<div class="d-flex flex-wrap" id="room-equipment">
-					<!--false=>設定d-none-->
 					<div class="d-flex align-items-center px-2 item-space " id="bed">
 						<span class="material-symbols-outlined text-success d-flex align-items-center">
 							bed<span class="room-text">床</span>
@@ -389,13 +389,13 @@
 						{
 							string imageBase64 = Convert.ToBase64String(Model.Member.avatar);
 							string imageSrc = $"data:image/jpeg;base64,{imageBase64}";
-							<img src="@imageSrc" alt="Room Image" class="img-fluid rounded-circle "
-								 style="height: 200px; width: 200px; object-fit: cover;">
+										<img src="@imageSrc" alt="Room Image" class="img-fluid rounded-circle "
+										 	style="height: 200px; width: 200px; object-fit: cover;">
 						}
 						else
 						{
-							<img src="~/images/peopleImg.png" alt="Room Image" class="img-fluid rounded-circle "
-								 style="height: 200px; width: 200px; object-fit: cover;">
+										<img src="~/images/peopleImg.png" alt="Room Image" class="img-fluid rounded-circle "
+										 	style="height: 200px; width: 200px; object-fit: cover;">
 						}
 					}
 				</div>
@@ -478,11 +478,11 @@
 								{
 									string imageBase64 = Convert.ToBase64String(message.avatar);
 									string imageSrc = $"data:image/jpeg;base64,{imageBase64}";
-									<img src="@imageSrc" alt="" class="object-cover rounded-circle me-2 user-shot" id="user-shot">
+												<img src="@imageSrc" alt="" class="object-cover rounded-circle me-2 user-shot" id="user-shot">
 								}
 								else
 								{
-									<img src="~/images/peopleImg.png" alt="" class="object-cover rounded-circle me-2 user-shot" id="user-shot">
+												<img src="~/images/peopleImg.png" alt="" class="object-cover rounded-circle me-2 user-shot" id="user-shot">
 								}
 							}
 							<div class="messageBubble p-2 rounded w-100">
@@ -567,6 +567,7 @@
 			memberID = String(sessionStorage.getItem("memberID"));
 			memberName = String(sessionStorage.getItem("memberName"));
 			memberEmail = String(sessionStorage.getItem("memberEmail"));
+			console.log(`${{ memberID }} ${{ memberName }} ${{ memberEmail }}`);
 			//檢查房間是否匹配會員編號
 			(async () => {
 				try {
@@ -579,10 +580,23 @@
 					$('#add-favorites-btn').addClass('d-none');
 					$('#invite-room-btn').addClass('d-none');
 				} catch (error) {
-					//抓throw error;
 					console.error("發生錯誤:", error);
 				}
 			})();
+		}
+		async function disableFavoriteAndShareRoom() {
+			try {
+				const response = await $.ajax({
+					url: '/Search/disableFavoriteAndShareRoom',
+					type: 'POST',
+					data: { roomID: roomID }
+				});
+				// console.log("ajax房間編號對應當前登入會員", response.getMemberID);
+				return response.getMemberID;
+			}
+			catch (error) {
+				console.error("Ajax錯誤:", error);
+			}
 		}
 		console.log("會員 ID:", memberID);
 		console.log("會員名稱:", memberName);
@@ -592,6 +606,7 @@
 		checkFavoriteRoom();
 		//設備
 		checkDevice();
+
 		//上一頁
 		$('#return-btn').click(function () {
 			window.history.back();
@@ -776,28 +791,30 @@
 						const base64String = btoa(
 							new Uint8Array(response).reduce((data, byte) => data + String.fromCharCode(byte), "")
 						);
+						//String.fromCharCode(byte)轉換對應ascii
+
 						imageSrc = `data:image/jpeg;base64,${base64String}`;
-						//檢查二進制數據
+						//檢查base64
 						// console.log("圖片來源已更新:", imageSrc);
 						//發送留言
 						let showEditText = (String(searchMemberIdToAvatar) === currentMemberID);
 						console.log("check showEditButton", showEditText);
 						var newMessage = `<div class="messageItem mb-3 d-flex member-${searchMemberIdToAvatar} ps-3 pe-4">
-																<img src="${imageSrc}" alt="" class="object-cover rounded-circle me-2 user-shot" id="user-shot">
-																<div class="messageBubble p-2 rounded w-100">
-																<div class="message-title">
-																	<strong class="member-name" id="member-name">${user}</strong>
-																		${replyBasementMemberName ? `<strong class="reply-member-name ms-1" id="reply-member-name">${replyBasementMemberName} </strong>` : ""}
-																	<span class="message-content ms-2">${messageContent}</span>
+																	<img src="${imageSrc}" alt="" class="object-cover rounded-circle me-2 user-shot" id="user-shot">
+																	<div class="messageBubble p-2 rounded w-100">
+																	<div class="message-title">
+																		<strong class="member-name" id="member-name">${user}</strong>
+																			${replyBasementMemberName ? `<strong class="reply-member-name ms-1" id="reply-member-name">${replyBasementMemberName} </strong>` : ""}
+																		<span class="message-content ms-2">${messageContent}</span>
+																	</div>
+																	<div class="d-flex align-items-center">
+																		<span class="reply me-2">回覆</span>
+																			${showEditText ? `<span class="edit-text me-2">編輯</span>` : ""}
+																		<span class="messageTime">${messageTime}</span>
+																			 <strong class="message-basement ms-auto">${newBasement}</strong>
+																	</div>
 																</div>
-																<div class="d-flex align-items-center">
-																	<span class="reply me-2">回覆</span>
-																		${showEditText ? `<span class="edit-text me-2">編輯</span>` : ""}
-																	<span class="messageTime">${messageTime}</span>
-																		 <strong class="message-basement ms-auto">${newBasement}</strong>
-																</div>
-															</div>
-															</div>`;
+																</div>`;
 						$('.messageArea').append(newMessage);
 						$('#No-message').remove();
 						// console.log("檢查啟用發送按鈕");
@@ -805,9 +822,12 @@
 					},
 					error: function (xhr, status, error) {
 						try {
-							//將二進制資料轉換為json
-							const response = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(xhr.response)));
-							ajaxError(response, xhr, status, error);
+							// 二進制數據解碼為字串
+							const errorMessage = new TextDecoder().decode(xhr.response);
+							// 解析JSON
+							const errorData = JSON.parse(errorMessage);
+							console.error("錯誤成功標誌:", errorData.success);
+							console.error("錯誤訊息:", errorData.message);
 						} catch (e) {
 							console.error("未預期的伺服器錯誤:", xhr.responseText || xhr.statusText);
 						}
@@ -1074,6 +1094,7 @@
 				error: ajaxError
 			});
 		}
+		//檢查收藏狀態
 		function checkFavoriteRoom() {
 			$.ajax({
 				url: '@Url.Action("checkFavoriteRoom", "partialView")',
@@ -1108,7 +1129,7 @@
 		//名字點擊
 		$('.messageArea').on('click', '.member-name', function () {
 			let parentClass = $(this).closest('.messageItem').attr('class');
-			let memberID = parentClass.match(/member-(\d+)/)?.[1]; 
+			let memberID = parentClass.match(/member-(\d+)/)?.[1];
 			$.ajax({
 				url: '/Search/MessageMember',
 				type: 'POST',
@@ -1151,22 +1172,6 @@
 				timeZone: 'Asia/Taipei',
 			});
 			return messageTime;
-		}
-
-		async function disableFavoriteAndShareRoom() {
-			try {
-				const response = await $.ajax({
-					url: '/Search/disableFavoriteAndShareRoom',
-					type: 'POST',
-					data: { roomID: roomID }
-				});
-				// console.log("ajax房間編號對應當前登入會員", response.getMemberID);
-				return response.getMemberID;
-			}
-			catch (error) {
-				console.error("Ajax錯誤:", error);
-				throw error;
-			}
 		}
 
 		//抓取當下時間---------------------------------------
@@ -1290,11 +1295,9 @@
 			try {
 				console.error("伺服器錯誤:", response.message || "未提供錯誤訊息");
 				console.error("詳細錯誤:", response.error || "未提供詳細錯誤訊息");
-				console.error("內部例外:", response.innerException || "無內部例外");
 				console.error("堆疊追蹤:", response.stackTrace || "無堆疊追蹤");
-				console.error("調試資訊:", response.debugInfo || "無調試資訊");
 			} catch (e) {
-				console.error("未預期的伺服器錯誤:", xhr.responseText || xhr.statusText || "無響應文本");
+				console.error("未預期的伺服器錯誤:", xhr.responseText);
 			}
 			console.log("AJAX 狀態:", status || "未知狀態");
 			console.log("AJAX 錯誤:", error || "未知錯誤");

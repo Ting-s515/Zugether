@@ -310,8 +310,7 @@
 		}
 
 		function checkFavoriteRoom() {
-			// var memberID = 1;
-			//id開頭=
+			//css attribute selector
 			$('[id^="heart-checkbox-"]').prop('checked', false);
 			$.ajax({
 				url: '@Url.Action("checkFavoriteRoom", "partialView")',

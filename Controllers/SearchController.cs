@@ -18,12 +18,12 @@ namespace Zugether.Controllers
 			return View();
 		}
 		//GET
-		public async Task<IActionResult> RoomList()
+		public IActionResult RoomList()
 		{
 			// 讀取查詢結果
 			string? dataJson = HttpContext.Session.GetString("SearchResults");
 			// 如果查詢結果為空，設置為空的 List<T>
-			List<RoomViewModel>? data = await Task.Run(() => JsonConvert.DeserializeObject<List<RoomViewModel>>(dataJson ?? "[]"));
+			List<RoomViewModel>? data = JsonConvert.DeserializeObject<List<RoomViewModel>>(dataJson ?? "[]");
 			ViewBag.Message = HttpContext.Session.GetString("Message");
 			ViewBag.CityList = HttpContext.Session.GetString("CityList");
 			return View(data);
@@ -44,11 +44,11 @@ namespace Zugether.Controllers
 				return RedirectToAction("RoomList");
 			}
 			//寵物 抽菸
-			query = from x in query
-					join y in _context.Device_List on x.device_list_id equals y.device_list_id
-					where (pet ? y.keep_pet == true : y.keep_pet != true) &&
-						  (smoking ? y.smoking == true : y.smoking != true)
-					select x;
+			query = from data in query
+					join de in _context.Device_List on data.device_list_id equals de.device_list_id
+					where (pet ? de.keep_pet == true : de.keep_pet != true) &&
+						  (smoking ? de.smoking == true : de.smoking != true)
+					select data;
 			switch (cityList.ToLower().Trim())
 			{
 				case "all":
@@ -105,20 +105,20 @@ namespace Zugether.Controllers
 			List<RoomViewModel> result = await query.Select(room => new RoomViewModel
 			{
 				Room = room,
-				roomImages = (from x in _context.Room
-							  where x.room_id == room.room_id
-							  join y in _context.Photo on x.album_id equals y.album_id
+				roomImages = (from r in _context.Room
+							  where r.room_id == room.room_id
+							  join p in _context.Photo on r.album_id equals p.album_id
 							  select new RoomImages
 							  {
-								  room_photo = y.room_photo,
-								  photo_type = y.photo_type
+								  room_photo = p.room_photo,
+								  photo_type = p.photo_type
 							  }).ToList(),
 				deviceList = _context.Device_List
-					.Where(x => x.device_list_id == room.device_list_id)
-					.Select(x => new DeviceList
+					.Where(de => de.device_list_id == room.device_list_id)
+					.Select(newDe => new DeviceList
 					{
-						canPet = x.keep_pet,
-						canSmoking = x.smoking
+						canPet = newDe.keep_pet,
+						canSmoking = newDe.smoking
 					}).ToList(),
 			}).ToListAsync();
 			string sessionKey = "SearchResults";
@@ -152,6 +152,7 @@ namespace Zugether.Controllers
 			{
 				return PartialView("_PartialNotFound");
 			}
+
 			Room room = await GetRoomID(roomID);
 			if (room == null)
 			{
@@ -161,6 +162,7 @@ namespace Zugether.Controllers
 			{
 				return PartialView("_PartialNotFound");
 			}
+			//為了確保非同步操作完成後，程式才繼續執行下一行
 			Member member = await GetMember(roomID);
 			Landlord landlord = await GetLandlord(roomID);
 			List<RoomMessage> message = await GetMessageArea(roomID);
@@ -177,8 +179,8 @@ namespace Zugether.Controllers
 		}
 		public async Task<Room> GetRoomID(short roomID)
 		{
-			Room? query = await _context.Room.FirstOrDefaultAsync(x => x.room_id == roomID);
-			return query;
+			Room? room = await _context.Room.FirstOrDefaultAsync(x => x.room_id == roomID);
+			return room;
 		}
 		//取出留言區資料
 		[HttpPost]
@@ -186,24 +188,25 @@ namespace Zugether.Controllers
 		{
 			try
 			{
-				List<RoomMessage> query = await (from x in _context.Message_Board
-												 where x.room_id == roomID
-												 join y in _context.Message on x.message_board_id equals y.message_board_id
-												 join z in _context.Member on y.member_id equals z.member_id
-												 join z1 in _context.Member on y.reply_member_id equals z1.member_id into replies
-												 from reply in replies.DefaultIfEmpty() // 左連接
-												 select new RoomMessage
-												 {
-													 reply_member_content = y.reply_member_content,
-													 message_content = y.message_content,
-													 member_name = z.name,
-													 reply_member_name = reply != null ? reply.name : "",
-													 post_time = y.post_time,
-													 message_basement = y.message_basement.ToString(),
-													 avatar = z.avatar,
-													 member_id = y.member_id
-												 }).ToListAsync();
-				return query;
+				List<RoomMessage> roomMessages = await (from message_board in _context.Message_Board
+														where message_board.room_id == roomID
+														join message in _context.Message on message_board.message_board_id equals message.message_board_id
+														join member in _context.Member on message.member_id equals member.member_id
+														join member_reply in _context.Member on message.reply_member_id equals member_reply.member_id into replies
+														//當message.reply_member_id為null，replies集合會留空
+														from reply in replies.DefaultIfEmpty() // 左連接
+														select new RoomMessage
+														{
+															reply_member_content = message.reply_member_content,
+															message_content = message.message_content,
+															member_name = member.name,
+															reply_member_name = reply != null ? reply.name : "",
+															post_time = message.post_time,
+															message_basement = message.message_basement.ToString(),
+															avatar = member.avatar,
+															member_id = message.member_id
+														}).ToListAsync();
+				return roomMessages;
 			}
 			catch (Exception ex)
 			{
@@ -213,50 +216,50 @@ namespace Zugether.Controllers
 		public async Task<Member> GetMember(short roomID)
 		{
 
-			Member? query = await (from x in _context.Room
-								   where x.room_id == roomID
-								   join y in _context.Member on x.member_id equals y.member_id
-								   select y).FirstOrDefaultAsync();
-			return query;
+			Member? member = await (from r in _context.Room
+									where r.room_id == roomID
+									join m in _context.Member on r.member_id equals m.member_id
+									select m).FirstOrDefaultAsync();
+			return member;
 		}
 		public async Task<Landlord> GetLandlord(short roomID)
 		{
-			Landlord? query = await (from x in _context.Room
-									 where x.room_id == roomID
-									 join y in _context.Landlord on x.landlord_id equals y.landlord_id
-									 select y).FirstOrDefaultAsync();
-			return query;
+			Landlord? landlord = await (from r in _context.Room
+										where r.room_id == roomID
+										join la in _context.Landlord on r.landlord_id equals la.landlord_id
+										select la).FirstOrDefaultAsync();
+			return landlord;
 		}
 		public async Task<List<RoomImages>> GetRoomImages(short roomID)
 		{
-			List<RoomImages> query = await (from x in _context.Room
-											where x.room_id == roomID
-											join y in _context.Photo on x.album_id equals y.album_id
-											select new RoomImages
-											{
-												room_photo = y.room_photo,
-												photo_type = y.photo_type,
-											}).ToListAsync();
-			return query;
+			List<RoomImages> roomImages = await (from r in _context.Room
+												 where r.room_id == roomID
+												 join p in _context.Photo on r.album_id equals p.album_id
+												 select new RoomImages
+												 {
+													 room_photo = p.room_photo,
+													 photo_type = p.photo_type,
+												 }).ToListAsync();
+			return roomImages;
 		}
-		//房間設備
+
+		//房間設備 function checkDevice()
 		[HttpPost]
 		public async Task<IActionResult> GetRoomDevice(short roomID)
 		{
 			try
 			{
-				Device_List? room = await (from x in _context.Room
-										   where x.room_id == roomID
-										   join y in _context.Device_List on x.device_list_id equals y.device_list_id
-										   select y).FirstOrDefaultAsync();
-				return Json(new { state = true, data = room });
+				Device_List? device_List = await (from r in _context.Room
+												  where r.room_id == roomID
+												  join de in _context.Device_List on r.device_list_id equals de.device_list_id
+												  select de).FirstOrDefaultAsync();
+				return Json(new { state = true, data = device_List });
 			}
 			catch (Exception ex)
 			{
 				return StatusCode(500, new
 				{
 					errorMessage = ex.Message,
-					innerException = ex.InnerException?.Message,
 					stackTrace = ex.StackTrace
 				});
 			}
@@ -324,18 +327,7 @@ namespace Zugether.Controllers
 					state = false,
 					message = "POST留言失敗",
 					errorMessage = ex.Message,
-					innerException = ex.InnerException?.Message,
 					stackTrace = ex.StackTrace,
-					debugInfo = new
-					{
-						roomID,
-						memberID,
-						messageTime,
-						replyMemberContent,
-						messageContent,
-						replyName,
-						replyMemberID
-					}
 				});
 			}
 		}
@@ -351,20 +343,20 @@ namespace Zugether.Controllers
 					.Select(x => x.message_board_id)
 					.FirstOrDefaultAsync();
 				// 查詢留言內容
-				List<RoomMessage> message = await (from x in _context.Message
-												   where x.message_board_id == messageBoardID && x.message_basement.ToString() == replyBasement
-												   join y in _context.Member on x.member_id equals y.member_id
-												   join y1 in _context.Member on x.reply_member_id equals y1.member_id into replyGroup
-												   from replyMember in replyGroup.DefaultIfEmpty()// 左連接
+				List<RoomMessage> message = await (from messageData in _context.Message
+												   where messageData.message_board_id == messageBoardID && messageData.message_basement.ToString() == replyBasement
+												   join member in _context.Member on messageData.member_id equals member.member_id
+												   join member_reply in _context.Member on messageData.reply_member_id equals member_reply.member_id into replies
+												   from replyMember in replies.DefaultIfEmpty()// 左連接
 												   select new RoomMessage
 												   {
-													   reply_member_content = x.reply_member_content,
-													   message_content = x.message_content,
-													   member_name = y.name,
+													   reply_member_content = messageData.reply_member_content,
+													   message_content = messageData.message_content,
+													   member_name = member.name,
 													   reply_member_name = replyMember != null ? replyMember.name : "",
-													   message_basement = x.message_basement.ToString(),
-													   post_time = x.post_time.ToString(),
-													   avatar = y.avatar
+													   message_basement = messageData.message_basement.ToString(),
+													   post_time = messageData.post_time.ToString(),
+													   avatar = member.avatar
 												   }).ToListAsync();
 				//if (message == null || !message.Any())
 				//{
@@ -384,7 +376,6 @@ namespace Zugether.Controllers
 					state = false,
 					message = "查詢回覆樓層失敗",
 					errorMessage = ex.Message,
-					innerException = ex.InnerException?.Message,
 					stackTrace = ex.StackTrace
 				});
 			}
@@ -418,10 +409,9 @@ namespace Zugether.Controllers
 			{
 				return Json(new
 				{
-					state = false,
+					success = false,
 					message = "編輯留言失敗",
 					errorMessage = ex.Message,
-					innerException = ex.InnerException?.Message,
 					stackTrace = ex.StackTrace
 				});
 			}
@@ -434,11 +424,10 @@ namespace Zugether.Controllers
 			{
 				if (!short.TryParse(memberID.Trim(), out short parsedMemberID))
 				{
-					return Json(new
+					return BadRequest(new
 					{
 						success = false,
-						message = "無效的會員 ID，無法進行處理",
-						debugInfo = new { MemberID = memberID }
+						message = "無效的會員 ID，無法進行處理"
 					});
 				}
 				var member = _context.Member.FirstOrDefault(x => x.member_id == parsedMemberID);
@@ -448,7 +437,11 @@ namespace Zugether.Controllers
 					var defaultImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "peopleImg.png");
 					if (!System.IO.File.Exists(defaultImagePath))
 					{
-						throw new FileNotFoundException("預設圖片不存在", defaultImagePath);
+						return NotFound(new
+						{
+							success = false,
+							message = "預設圖片不存在",
+						});
 					}
 					var defaultImageBytes = System.IO.File.ReadAllBytes(defaultImagePath);
 					return File(defaultImageBytes, "image/png");
@@ -458,18 +451,11 @@ namespace Zugether.Controllers
 			}
 			catch (Exception ex)
 			{
-				// 僅返回 JSON 格式的錯誤信息
 				return StatusCode(500, new
 				{
 					success = false,
 					message = "無法獲取會員圖片",
-					error = ex.Message,
-					innerException = ex.InnerException?.Message,
-					stackTrace = ex.StackTrace,
-					debugInfo = new
-					{
-						MemberID = memberID
-					}
+					error = ex.Message
 				});
 			}
 		}
@@ -503,7 +489,6 @@ namespace Zugether.Controllers
 					success = false,
 					message = "查詢會員編號時發生錯誤",
 					errorMessage = ex.Message,
-					innerException = ex.InnerException?.Message,
 					stackTrace = ex.StackTrace
 				});
 			}
@@ -526,7 +511,6 @@ namespace Zugether.Controllers
 					success = false,
 					message = "查詢房間編號時發生錯誤",
 					errorMessage = ex.Message,
-					innerException = ex.InnerException?.Message,
 					stackTrace = ex.StackTrace
 				});
 			}

@@ -20,13 +20,13 @@ namespace Zugether.Controllers
         [HttpPost]
         public async Task<IActionResult> checkFavoriteRoom(short memberID)
         {
-            IQueryable<short> query = from x in _context.Favor_List
-                                      where x.member_id == memberID
-                                      join y in _context.Favorites
-                                      on x.favor_list_id equals y.favor_list_id
-                                      select y.room_id;
-            var result = await query.ToListAsync();
-            return Json(result);//返回room_id
+            IQueryable<short> roomID = from fa_li in _context.Favor_List
+                                       where fa_li.member_id == memberID
+                                       join fa in _context.Favorites
+                                       on fa_li.favor_list_id equals fa.favor_list_id
+                                       select fa.room_id;
+            List<short> result = await roomID.ToListAsync();
+            return Json(result);
         }
         //Loading動畫
         public IActionResult Loading(bool isLoading, int time)

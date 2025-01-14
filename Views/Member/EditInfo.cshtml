@@ -23,7 +23,7 @@
         @await Html.PartialAsync("_PartialMemberListGroup")
         <div class="w-100  ps-md-5">
             @await Html.PartialAsync("_PartialPageTitle", "修改會員資料")
-            <form action="EditInfo" method="post" enctype="multipart/form-data">
+            <form action="EditInfo" method="post" enctype="multipart/form-data" id="EditInfo">
                 <div class="avatar d-flex justify-content-center mb-3">
                     <input type="file" accept="image/*" id="avatar" name="avatar" class="d-none" />
                     <figure class="avatar-figure">
@@ -110,7 +110,7 @@
             if (file) {
                 reader.readAsDataURL(file);
             }
-        })
+        });
 
         let length = $("#intro").text().length
         $("#charCount").text(`${length}/200`)
@@ -118,6 +118,15 @@
             $(this).text($(this).val());
             length = $(this).text().length;
             $("#charCount").text(`${length}/200`)
-        })
+        });
+
+        //更新_Layout姓名
+        $('#EditInfo').on('submit', function () {
+            const name = $('#name').val();
+            sessionStorage.setItem('memberName', name);
+            // console.log("name更新為=", sessionStorage.getItem('memberName'));
+            // alert("已送出表單");
+        });
+
     </script>
 }

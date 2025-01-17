@@ -193,8 +193,8 @@ namespace Zugether.Controllers
 														join message in _context.Message on message_board.message_board_id equals message.message_board_id
 														join member in _context.Member on message.member_id equals member.member_id
 														join member_reply in _context.Member on message.reply_member_id equals member_reply.member_id into replies
-														//當message.reply_member_id為null，replies集合會留空
-														from reply in replies.DefaultIfEmpty() // 左連接
+														//當message.reply_member_id為null，replies集合會留空[]
+														from reply in replies.DefaultIfEmpty()
 														select new RoomMessage
 														{
 															reply_member_content = message.reply_member_content,
@@ -347,7 +347,7 @@ namespace Zugether.Controllers
 												   where messageData.message_board_id == messageBoardID && messageData.message_basement.ToString() == replyBasement
 												   join member in _context.Member on messageData.member_id equals member.member_id
 												   join member_reply in _context.Member on messageData.reply_member_id equals member_reply.member_id into replies
-												   from replyMember in replies.DefaultIfEmpty()// 左連接
+												   from replyMember in replies.DefaultIfEmpty()//沒有匹配紀錄，預設值null
 												   select new RoomMessage
 												   {
 													   reply_member_content = messageData.reply_member_content,

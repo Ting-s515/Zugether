@@ -979,29 +979,29 @@ namespace Zugether.Controllers
 		public async Task<IActionResult> FavoriteRoom()
 		{
 			int? memberID = HttpContext.Session.GetInt32("FavoriteMemberID");
-			IQueryable<Room> query = from x in _context.Favor_List
-									 where x.member_id == memberID
-									 join y in _context.Favorites on x.favor_list_id equals y.favor_list_id
-									 join z in _context.Room on y.room_id equals z.room_id
-									 select z;
+			IQueryable<Room> query = from fl in _context.Favor_List
+									 where fl.member_id == memberID
+									 join f in _context.Favorites on fl.favor_list_id equals f.favor_list_id
+									 join r in _context.Room on f.room_id equals r.room_id
+									 select r;
 
 			List<RoomViewModel> result = await query.Select(room => new RoomViewModel
 			{
 				Room = room,
 				deviceList = _context.Device_List
-						.Where(x => x.device_list_id == room.device_list_id)
+						.Where(de => de.device_list_id == room.device_list_id)
 						.Select(x => new DeviceList
 						{
 							canPet = x.keep_pet,
 							canSmoking = x.smoking
 						}).ToList(),
-				roomImages = (from x in _context.Room
-							  where x.room_id == room.room_id
-							  join y in _context.Photo on x.album_id equals y.album_id
+				roomImages = (from r in _context.Room
+							  where r.room_id == room.room_id
+							  join p in _context.Photo on r.album_id equals p.album_id
 							  select new RoomImages
 							  {
-								  room_photo = y.room_photo,
-								  photo_type = y.photo_type
+								  room_photo = p.room_photo,
+								  photo_type = p.photo_type
 							  }).ToList()
 			}).ToListAsync();
 
@@ -1056,11 +1056,11 @@ namespace Zugether.Controllers
 		[HttpPost]
 		public async Task<IActionResult> RemoveFavoriteRoom(short roomID, short memberID)
 		{
-			Favorites? favorite = await (from x in _context.Favor_List
-										 where x.member_id == memberID
-										 join y in _context.Favorites on x.favor_list_id equals y.favor_list_id
-										 where y.room_id == roomID
-										 select y).FirstOrDefaultAsync();
+			Favorites? favorite = await (from fl in _context.Favor_List
+										 where fl.member_id == memberID
+										 join f in _context.Favorites on fl.favor_list_id equals f.favor_list_id
+										 where f.room_id == roomID
+										 select f).FirstOrDefaultAsync();
 			try
 			{
 				_context.Favorites.Remove(favorite);

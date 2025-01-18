@@ -8,10 +8,12 @@ namespace Zugether.Controllers
 {
 	public class SearchController : Controller
 	{
-		public readonly ZugetherContext _context;
-		public SearchController(ZugetherContext context)
+		private readonly ZugetherContext _context;
+		private readonly ILogger<SearchController> _logger;
+		public SearchController(ZugetherContext context, ILogger<SearchController> logger)
 		{
 			_context = context;
+			_logger = logger;
 		}
 		public IActionResult Index()
 		{
@@ -210,6 +212,8 @@ namespace Zugether.Controllers
 			}
 			catch (Exception ex)
 			{
+				_logger.LogError("抓取留言失敗 {}", ex);
+				//重新拋出一個新的例外物件
 				throw new ApplicationException("抓取留言失败", ex);
 			}
 		}
@@ -326,7 +330,9 @@ namespace Zugether.Controllers
 				{
 					state = false,
 					message = "POST留言失敗",
+					//包含拋出的例外訊息
 					errorMessage = ex.Message,
+					//提供拋出例外時的呼叫堆疊資訊，用於定位問題發生的位置
 					stackTrace = ex.StackTrace,
 				});
 			}

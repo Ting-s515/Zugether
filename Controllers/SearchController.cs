@@ -34,7 +34,7 @@ namespace Zugether.Controllers
 		public async Task<IActionResult> SearchRoom(string cityList, string cityAreaList, short rent, string roomType,
 			 string preferJobtime, bool pet = false, bool smoking = false)
 		{
-			IQueryable<Room> query = _context.Room.AsQueryable();
+			IQueryable<Room> query = _context.Room;
 			//測試價格
 			//rent = 30000;
 			query = query.Where(x => x.isEnabled == true);

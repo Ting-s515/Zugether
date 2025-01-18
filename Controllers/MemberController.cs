@@ -1012,7 +1012,6 @@ namespace Zugether.Controllers
 				return View(new List<RoomViewModel>());
 			}
 
-			// 將查詢結果傳遞到 View 中顯示
 			return View(result);
 		}
 		//送會員編號

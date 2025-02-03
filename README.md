@@ -1,93 +1,84 @@
-# Test
+<!DOCTYPE html>
+<html lang="zh-Hant">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 
+<body>
+    <h1>Zugether合租網站</h1>
+    <h2>目錄 : </h2>
+    <ul>
+        <li><a href="#project-description">專案說明</a></li>
+        <li><a href="#responsible-for-project">我負責的項目</a></li>
+        <li><a href="#technology-application">技術應用</a></li>
+        <li><a href="#database-design">資料庫設計</a></li>
+        <li><a href="#function-description">功能說明</a></li>
+    </ul>
+    <h2 id="project-description">專案說明 : </h2>
+    <ul>
+        <li>目標是幫助人們快速找到志同道合的室友，以更低租金、更大空間，讓生活更加舒適，旨在為租房族提供一個方便且可靠的管道，來滿足租房的需求。無論是希望找到志同道合的合租夥伴，還是想更深入地了解潛在的室友，我們的平台都能滿足您的需求。
+        </li>
+    </ul>
+    <h2 id="responsible-for-project">我負責的項目 : </h2>
+    <ul>
+        <li>房間頁面畫面排版: 實現直觀的介面，使用bootstrap實現RWD。</li>
+        <li>搜尋房間: 提供多條件篩選，使用 LINQ 實現高效的資料查詢。</li>
+        <li>google登入: 串接Google OAuth，以便讓用戶加快登入流程。</li>
+        <li>留言板: 使用SingnalR技術，實現即時雙向通訊功能。</li>
+        <li>我的收藏: 開發房源收藏功能，讓用戶能保存感興趣的房源。</li>
+    </ul>
+    <h2 id="technology-application">技術應用 :　</h2>
+    <ul>
+        <li>前端 :</li>
+        <ul>
+            <li>HTML/CSS</li>
+            <li>JS & jQuery</li>
+            <li>Bootstrap</li>
+        </ul>
+        <li>後端</li>
+        <ul>
+            <li>ASP.NET MVC</li>
+        </ul>
+        <li>資料庫:</li>
+        <ul>
+            <li>MSSQL</li>
+        </ul>
+        <li>API:</li>
+        <ul>
+            <li>Google OAuth</li>
+            <li>Google Maps</li>
+        </ul>
+        <li>其他:</li>
+        <ul>
+            <li>Google OAuth</li>
+            <li>Google Maps</li>
+            <li>SignalR</li>
+            <li>Swiper</li>
+            <li>Animate.css</li>
+        </ul>
+    </ul>
+    <h2 id="database-design">資料庫設計 : </h2>
+    <img src="https://i.imgur.com/18V86Ln.png" alt="資料庫設計圖" style="max-width: 100%; height: auto;">
+    <h2 id="function-description">功能說明 :</h2>
+    <ul>
+        <li>
+            房源搜尋：用戶可以輕鬆發布房源，並透過多重篩選功能快速找到符合需求的合租物件。
+        </li>
+        <li>
+            Google 快速登入：整合 Google OAuth 提供快速登入功能，簡化註冊流程，提升用戶體驗。
+        </li>
+        <li>
+            地圖整合：使用 Google Maps API 將房源位置直觀呈現，讓用戶更輕鬆地確認房源周邊環境。
+        </li>
+        <li>
+            即時留言功能：會員之間可以即時留言互動，促進雙方溝通，提升資訊透明度。
+        </li>
+        <li>
+            動畫效果優化：利用 Animate.css 增加頁面動態效果，提供更吸引人的視覺體驗。
+        </li>
+    </ul>
+</body>
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/test4742006/Test.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/test4742006/Test/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+</html>

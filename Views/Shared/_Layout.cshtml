@@ -354,7 +354,6 @@
 				}
 				//檢查記住信箱是否被勾選
 				if (rememberEmail.checked == true) {
-
 					sessionStorage.setItem("rememberEmail", loginEmail.value);
 				} else {
 					sessionStorage.removeItem("rememberEmail")
@@ -389,7 +388,7 @@
 
 			//點擊登出按鈕時清除登入資料
 			$('#logoutbtn').on('click', function () {
-		@isLogin=false;
+				@isLogin=false;
 				// sessionStorage.clear();
 				const keysToKeep = ['rememberEmail'];
 
@@ -399,7 +398,7 @@
 					}
 				});
 				window.location.href = "/Home/Logout"
-			})
+			});
 		
 			if (isLogin) {
 				$('#memberName').append(memberName);

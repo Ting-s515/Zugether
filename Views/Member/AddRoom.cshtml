@@ -387,6 +387,7 @@
                         <p class="text-center text-danger mb-3">(上傳照片數量以三張為限)</p>
                         <div class="roomPhotos row row-cols-1 row-cols-md-2 row-cols-lg-3 mb-3">
                             <input type="file" accept="image/*" id="roomPhotos" name="roomPhotos" multiple="" class="d-none" />
+                            @* class="d-none"：隱藏input，讓 label觸發上傳 *@
                             <label type="button" for="roomPhotos" class="text-center py-5 w-100 mb-3 rounded" id="uploadLabel" style="border: 1px dashed gray">
                                 <i class="fa fa-plus text-gray" aria-hidden="true" style="font-size: 50px"></i>
                                 <p class="text-gray">新增房間圖片</p>
@@ -668,19 +669,20 @@
             $("#consentPhoto").on("change", function (e) {
                 consent_photo = e.target.files[0];
                 const reader = new FileReader();
+                //轉換完成後，觸發事件
                 reader.addEventListener("load", () => {
-                    const photo = reader.result;
+                    const photo = reader.result; //取得base64 URL
                     $("#img-wrapper").html(`
-                                        <div class="position-relative">
-                                            <img src="${photo}" class="w-100" style="height:250px"/>
-                                            <button type="button" class="btn btn-danger rounded-circle btn-delete deleteConsent">
-                                                <i class="bi bi-x" style="font-size: 16px"></i>
-                                            </button>
-                                        </div>
-                                    `);
+                        <div class="position-relative">
+                            <img src="${photo}" class="w-100" style="height:250px"/>
+                            <button type="button" class="btn btn-danger rounded-circle btn-delete deleteConsent">
+                                <i class="bi bi-x" style="font-size: 16px"></i>
+                            </button>
+                        </div>
+                    `);
                 }, false);
                 if (consent_photo) {
-                    reader.readAsDataURL(consent_photo);
+                    reader.readAsDataURL(consent_photo); //讀取檔案，轉換成base64
                 }
             });
             // 移除同意書照片
@@ -701,8 +703,7 @@
 
             // 處理圖片 (過濾出重複照片不添加(限制條件下)、可以分成多次累加上傳)
             $("#roomPhotos").on("change", function (event) {
-                let newFiles = Array.from(event.target.files);
-
+                let newFiles = Array.from(event.target.files); // FileList { 0: File, 1: File, length: 2 }
                 let remaining = maxPhotos - room_photos.length;
                 if (newFiles.length > remaining) {
                     newFiles = newFiles.slice(0, remaining); // 取前幾個檔案以符合剩餘的可用位置
@@ -715,24 +716,23 @@
                 uniqueFiles.forEach(file => room_photos.push(file));
 
                 $.each(uniqueFiles, function (index, file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const imageSrc = e.target.result;
+                    const reader = new FileReader(); // FileReader 物件讀取檔案
+                    //轉換完成後，觸發onload 事件，然後 .result 就會返回 Base64 圖片。
+                    reader.onload = function () {
+                        const imageSrc = reader.result; // 取得Base64 Data URL，沒有改變原始檔案
                         const imageDiv = $(`
-                                            <div class="col mb-4">
-                                                <div class="position-relative">
-                                                    <img src="${imageSrc}" alt="" class="object-cover roomPhoto w-100"/>
-                                                    <button type="button" class="btn btn-danger rounded-circle btn-delete deletePhoto">
-                                                        <i class="bi bi-x" style="font-size: 16px"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        `);
+                                <div class="col mb-4">
+                                    <div class="position-relative">
+                                        <img src="${imageSrc}" alt="" class="object-cover roomPhoto w-100"/>
+                                        <button type="button" class="btn btn-danger rounded-circle btn-delete deletePhoto">
+                                            <i class="bi bi-x" style="font-size: 16px"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `);
                         $(".roomPhotos").prepend(imageDiv);
                     };
-
-
-                    reader.readAsDataURL(file);
+                    reader.readAsDataURL(file);//  讀取檔案，將內容轉換為 Base64 Data URL。
                 });
 
                 // 超過設定數量即禁用上傳
